@@ -5,11 +5,12 @@ Simple Python neural network implementation.
 
 Instructions
 ============
-Dev
----
+Developer
+--------
 Make sure you have python, pip, and virtualenv installed. It is also
 preferred if numpy and scipy are installed globally already, otherwise it
 will be installed locally in the virtualenv.
+
     git clone repo _ url somedir # Clone the repo
     cd somedir
     virtualenv environment _ name # Create virtualenv
