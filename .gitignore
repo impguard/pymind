@@ -12,7 +12,7 @@ Thumbs.db
 
 # Ignore build files #
 ######################
-build/*
+*.pyc
 
 # Ignore VirtualEnv #
 #####################
