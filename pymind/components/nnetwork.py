@@ -1,11 +1,10 @@
 import numpy as np
-from nnlayer import NetworkLayer
+from nnlayer import NNetworkLayer
 from ..util import *
-from collections import deque
 
-class NeuralNetwork:
+class NeuralNetwork(object):
 
-  # Create a neural network by passing in a list of options.
+  # Create a neural network by passing in a dictionary of parameters.
   #
   # The parameters that are passed in include:
   #   input_units (number): number of input units
@@ -17,7 +16,7 @@ class NeuralNetwork:
   #   bias (bool): whether a bias unit should be introduced in each layer
   #
   # Note: Only the hidden_units parameter is optional
-  def __init__(self, **params):
+  def __init__(self, params):
     # ----- Initialize parameters ------ #
     if "hidden_units" not in params:
       self.hidden_units = []
@@ -33,7 +32,7 @@ class NeuralNetwork:
     self.activation_fn = params['activation_fn']
 
     # ----- Create layers ----- #
-    self.layers = deque()
+    self.layers = list()
     fn_count = range(len(self.activation_fn)).__iter__()
 
     # Input layer
@@ -47,8 +46,55 @@ class NeuralNetwork:
     self.addLayer(self.output_units, fn_count.next())
 
     # ----- Create network weights ----- #
+    self.weights = list()
+    bias = 1 if self.bias else 0
+    for i in range(len(self.layers)):
+      if i == len(self.layers) - 1:
+        break;
+      num_input = self.layers[i].num_input + bias
+      num_output = self.layers[i+1].num_input
+      self.weights.append(initRandParams(num_input, num_output))
 
-  def addLayer(units, activation_fn_index):
-    new_layer = NetworkLayer(units, self.activation_fn[activation_fn_index])
-    self.layers.appendleft(new_layer)
+  # Helper method for initialization
+  def addLayer(self, units, activation_fn_index):
+    new_layer = NNetworkLayer(units, self.activation_fn[activation_fn_index])
+    self.layers.append(new_layer)
 
+  # For testing purposes only
+  def setWeight(self, index, weight):
+     self.weights[index] = weight
+
+  # Useful methods for using a NeuralNetwork
+  def getWeights(self, index):
+    return self.weights[index]
+
+  def getLayer(self, index):
+    return self.layers[index]
+
+  def feed_forward(self, x):
+    if x.shape[0] != self.input_units:
+      raise Exception("The input x has the wrong number of rows. Expected %s." \
+        % self.input_units)
+
+    curr_z = x
+    curr_a = None
+    z = list()
+    a = list()
+    weights = self.weights.__iter__()
+
+    for i in range(len(self.layers)):
+      layer = self.layers[i]
+      isOutput = i == len(self.layers) - 1
+      # Activation Step
+      curr_a = layer.activate(curr_z)
+      if self.bias and not isOutput:
+        ones = np.ones((1, curr_a.shape[1]))
+        curr_a = np.vstack((ones, curr_a))
+      z.append(curr_z)
+      a.append(curr_a)
+      if isOutput:
+        break
+      # Feed Forward Step
+      curr_z = weights.next() * curr_a
+
+    return z, a
