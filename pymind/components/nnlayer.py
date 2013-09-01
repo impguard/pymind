@@ -2,10 +2,9 @@ import numpy as np
 from ..util import initRandParams
 
 class NetworkLayer:
-  def __init__(self, num_input, num_output, activation_fnc):
+  def __init__(self, num_input, activation_fnc):
     # Save input
     self.num_input = num_input
-    self.num_output = num_output
     self.activation_fnc = np.frompyfunc(activation_fnc, 1, 1)
 
   def activate(self, input):
