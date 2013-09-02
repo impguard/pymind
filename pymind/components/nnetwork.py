@@ -11,7 +11,7 @@ class NeuralNetwork(object):
   #   output_units (number): number of output units
   #   hidden_units (number|list:number): number of hidden layer units; a list represents the number of hidden layer
   #     units per hidden layer (which will be inferred from the number of elements in the list)
-  #   activation_fn (list:function): a list of activation functions for each layer in the network; the number of
+  #   activationfn (list:function): a list of activation functions for each layer in the network; the number of
   #     functions should equal the number layers inferred from the previous parameters
   #   bias (bool): whether a bias unit should be introduced in each layer
   #
@@ -30,11 +30,11 @@ class NeuralNetwork(object):
     self.input_units = params['input_units']
     self.output_units = params['output_units']
     self.bias = params['bias']
-    self.activation_fn = params['activation_fn']
+    self.activationfn = params['activationfn']
 
     # ----- Create layers ----- #
     self.layers = list()
-    fn_count = range(len(self.activation_fn)).__iter__()
+    fn_count = range(len(self.activationfn)).__iter__()
 
     # Input layer
     self.addLayer(self.input_units, fn_count.next())
@@ -57,8 +57,8 @@ class NeuralNetwork(object):
       self.weights.append(initRandParams(num_input, num_output))
 
   # Helper method for initialization
-  def addLayer(self, units, activation_fn_index):
-    new_layer = NNLayer(units, self.activation_fn[activation_fn_index])
+  def addLayer(self, units, activationfn_index):
+    new_layer = NNLayer(units, self.activationfn[activationfn_index])
     self.layers.append(new_layer)
 
   # Useful methods for using a NeuralNetwork
@@ -68,14 +68,7 @@ class NeuralNetwork(object):
   def getLayer(self, index):
     return self.layers[index]
 
-  def checkInput(self, x):
-    if x.shape[0] != self.input_units:
-      raise Exception("The input x has the wrong number of rows. Expected %s." \
-        % self.input_units)
-
   def feed_forward(self, x):
-    self.checkInput(x)
-
     curr_z = x
     curr_a = None
     z = list()

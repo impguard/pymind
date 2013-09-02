@@ -1,6 +1,6 @@
 import numpy as np
 
-class _activationFn(object):
+class _activationfn(object):
   @classmethod
   def calc(cls, v):
     # Always cast input to a matrix
@@ -20,7 +20,7 @@ class _activationFn(object):
   def _grad(cls, v):
     raise Exception("_grad not implemented")
 
-class sigmoid(_activationFn):
+class sigmoid(_activationfn):
   @classmethod
   def _calc(cls, v):
     e = np.matrix(np.ones(v.shape) * np.e)
@@ -31,7 +31,7 @@ class sigmoid(_activationFn):
     val = cls.calc(v)
     return np.multiply(val, 1-val)
 
-class identity(_activationFn):
+class identity(_activationfn):
   @classmethod
   def _calc(cls, v):
     return v

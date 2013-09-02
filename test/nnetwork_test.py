@@ -12,7 +12,7 @@ def testNNetworkConstruction():
     "input_units": 5,
     "output_units": 3,
     "hidden_units": 4,
-    "activation_fn": [identity, sigmoid, sigmoid],
+    "activationfn": [identity, sigmoid, sigmoid],
     "bias": True
   }
   nnet = NeuralNetwork(params)
@@ -32,7 +32,7 @@ def testNNetworkConstruction():
     "input_units": 5,
     "output_units": 3,
     "hidden_units": [4, 4, 3],
-    "activation_fn": [identity, sigmoid, sigmoid, sigmoid, sigmoid],
+    "activationfn": [identity, sigmoid, sigmoid, sigmoid, sigmoid],
     "bias": False
   }
   nnet = NeuralNetwork(params)
@@ -53,7 +53,7 @@ def testForwardProp():
     "input_units": 2,
     "output_units": 1,
     "hidden_units": 2,
-    "activation_fn": [identity, identity, identity],
+    "activationfn": [identity, identity, identity],
     "bias": True
   }
   nnet = NeuralNetwork(params)
@@ -77,7 +77,7 @@ def testForwardProp():
     "input_units": 3,
     "hidden_units": [2, 2],
     "output_units": 1,
-    "activation_fn": [identity, sigmoid, identity, sigmoid],
+    "activationfn": [identity, sigmoid, identity, sigmoid],
     "bias": True
   }
   nnet = NeuralNetwork(params)

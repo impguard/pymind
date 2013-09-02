@@ -2,12 +2,10 @@ import numpy as np
 from ..util import initRandParams
 
 class NNLayer(object):
-  def __init__(self, num_input, activation_fn):
+  def __init__(self, num_input, activationfn):
     # Save input
     self.num_input = num_input
-    self.activation_fn = activation_fn
+    self.activationfn = activationfn
 
   def activate(self, x):
-    if x.shape[0] != self.num_input:
-      raise Exception("The input x has the wrong number of rows. Expected %s." % self.num_input)
-    return self.activation_fn.calc(x)
+    return self.activationfn.calc(x)
