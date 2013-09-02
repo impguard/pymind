@@ -10,4 +10,4 @@ class NNetworkLayer(object):
   def activate(self, x):
     if x.shape[0] != self.num_input:
       raise Exception("The input x has the wrong number of rows. Expected %s." % self.num_input)
-    return self.activation_fn(x)
+    return self.activation_fn.calc(x)

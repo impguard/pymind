@@ -1,24 +1,41 @@
 import numpy as np
 
-# Two functions to either calculate the sigmoid function or its gradient given an input. Both functions accept a
-# numeric quantity or a np.ndarray, but will always return a np.matrix. (With the same dimensions. For a number, the
-# return value will be a 1x1 matrix)
+class _matrixfunc(object):
+  @classmethod
+  def calc(cls, v):
+    # Always cast input to a matrix
+    v = np.matrix(v)
+    return cls._calc(v)
 
-def sigmoid(v):
-  # Always cast input to a matrix
-  v = np.matrix(v)
-  e = np.matrix(np.ones(v.shape) * np.e)
+  @classmethod
+  def grad(cls, v):
+    v = np.matrix(v)
+    return cls._grad(v)
 
-  return 1.0 / (1.0 + np.power(e, -v))
+  @classmethod
+  def _calc(cls, v):
+    raise Exception("_calc not implemented")
 
-def sigmoidGrad(v):
-  val = sigmoid(v)
-  return np.multiply(val, 1-val)
+  @classmethod
+  def _grad(cls, v):
+    raise Exception("_grad not implemented")
 
-def identity(v):
-  v = np.matrix(v)
-  return v
+class sigmoid(_matrixfunc):
+  @classmethod
+  def _calc(cls, v):
+    e = np.matrix(np.ones(v.shape) * np.e)
+    return 1.0 / (1.0 + np.power(e, -v))
 
-def identityGrad(v):
-  v = identity(v)
-  return v
+  @classmethod
+  def _grad(cls, v):
+    val = cls.calc(v)
+    return np.multiply(val, 1-val)
+
+class identity(_matrixfunc):
+  @classmethod
+  def _calc(cls, v):
+    return v
+
+  @classmethod
+  def _grad(cls, v):
+    return v
