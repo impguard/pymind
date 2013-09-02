@@ -1,6 +1,6 @@
 import numpy as np
 from nnlayer import NNetworkLayer
-from ..util import *
+from ..util import initRandParams
 
 class NeuralNetwork(object):
 

@@ -1,6 +1,6 @@
 import numpy as np
-from pymind.components import *
-from pymind import *
+from pymind.components import NNetworkLayer, NeuralNetwork
+from pymind.matrixfunc import *
 
 import pdb
 

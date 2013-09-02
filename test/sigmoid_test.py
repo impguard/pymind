@@ -1,5 +1,5 @@
 import numpy as np
-from pymind import *
+from pymind.matrixfunc import sigmoid, sigmoidGrad
 
 # Setup variables
 v1 = 3

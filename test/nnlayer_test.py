@@ -1,5 +1,5 @@
 import numpy as np
-from pymind.components.nnlayer import *
+from pymind.components import NNetworkLayer
 
 def testNetworkLayer():
   # Create a network layer with the identity function

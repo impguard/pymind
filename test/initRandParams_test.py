@@ -1,5 +1,5 @@
 import numpy as np
-from pymind import *
+from pymind.util import initRandParams
 
 def testInitRandParams():
   params = initRandParams(3, 3)
