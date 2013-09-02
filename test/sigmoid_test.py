@@ -1,5 +1,5 @@
 import numpy as np
-from pymind.util import *
+from pymind import *
 
 # Setup variables
 v1 = 3

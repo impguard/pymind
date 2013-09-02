@@ -1,6 +1,6 @@
 import numpy as np
 from pymind.components import *
-from pymind.util import *
+from pymind import *
 
 import pdb
 
