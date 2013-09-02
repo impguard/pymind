@@ -1,5 +1,5 @@
 import numpy as np
-from pymind.components import NNetworkLayer, NeuralNetwork
+from pymind.components import NNLayer, NeuralNetwork
 from pymind.matrixfunc import *
 
 # Utility method for testing purposes only
@@ -19,8 +19,8 @@ def testNNetworkConstruction():
   input_layer = nnet.layers[0]
 
   assert len(nnet.layers) == 3, "There should be three neural network layers: %d" % len(nnet.layers)
-  assert type(input_layer) == NNetworkLayer, \
-    "The first neural network layer should be of type NNetworkLayer: %s" % type(input_layer)
+  assert type(input_layer) == NNLayer, \
+    "The first neural network layer should be of type NNLayer: %s" % type(input_layer)
   assert input_layer.num_input == params["input_units"], \
     "The first neural network layer should have %d input_units: %d" % (params["input_units"], input_layer.num_input)
   assert nnet.weights[0].shape == (params["hidden_units"], params["input_units"] + 1), \
@@ -39,7 +39,7 @@ def testNNetworkConstruction():
   input_layer = nnet.layers[0]
 
   assert len(nnet.layers) == 5, "There should be five neural network layers: %d" % len(nnet.layers)
-  assert type(input_layer) == NNetworkLayer, \
+  assert type(input_layer) == NNLayer, \
     "The first neural network layer should be of type nnlayer: %s" % type(input_layer)
   assert input_layer.num_input == params["input_units"], \
     "The first neural network layer should have %d input_units: %d" % (params["input_units"], input_layer.num_input)

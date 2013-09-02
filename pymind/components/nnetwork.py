@@ -1,5 +1,5 @@
 import numpy as np
-from nnlayer import NNetworkLayer
+from nnlayer import NNLayer
 from ..util import initRandParams
 
 class NeuralNetwork(object):
@@ -58,7 +58,7 @@ class NeuralNetwork(object):
 
   # Helper method for initialization
   def addLayer(self, units, activation_fn_index):
-    new_layer = NNetworkLayer(units, self.activation_fn[activation_fn_index])
+    new_layer = NNLayer(units, self.activation_fn[activation_fn_index])
     self.layers.append(new_layer)
 
   # Useful methods for using a NeuralNetwork

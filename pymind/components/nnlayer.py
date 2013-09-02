@@ -1,7 +1,7 @@
 import numpy as np
 from ..util import initRandParams
 
-class NNetworkLayer(object):
+class NNLayer(object):
   def __init__(self, num_input, activation_fn):
     # Save input
     self.num_input = num_input
