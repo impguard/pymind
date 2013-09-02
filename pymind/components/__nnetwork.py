@@ -61,10 +61,6 @@ class NeuralNetwork(object):
     new_layer = NNetworkLayer(units, self.activation_fn[activation_fn_index])
     self.layers.append(new_layer)
 
-  # For testing purposes only
-  def setWeight(self, index, weight):
-     self.weights[index] = weight
-
   # Useful methods for using a NeuralNetwork
   def getWeights(self, index):
     return self.weights[index]

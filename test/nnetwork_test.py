@@ -2,7 +2,9 @@ import numpy as np
 from pymind.components import NNetworkLayer, NeuralNetwork
 from pymind.matrixfunc import *
 
-import pdb
+# Utility method for testing purposes only
+def setWeight(network, index, weight):
+  network.weights[index] = weight
 
 def testNNetworkConstruction():
   # Test single hidden layer
@@ -59,8 +61,8 @@ def testForwardProp():
   # Manually set weights for testing purposes
   weight0 = np.matrix(np.ones(6)).reshape(2, 3)
   weight1 = np.matrix(np.ones(3)).reshape(1, 3)
-  nnet.setWeight(0, weight0)
-  nnet.setWeight(1, weight1)
+  setWeight(nnet, 0, weight0)
+  setWeight(nnet, 1, weight1)
 
   x = np.matrix([1, 1]).T
   z, a = nnet.feed_forward(x)
@@ -85,9 +87,10 @@ def testForwardProp():
   weight1 = np.matrix(np.ones(6)).reshape(2, 3)
   weight2 = np.matrix(np.ones(3)).reshape(1, 3)
 
-  nnet.setWeight(0, weight0)
-  nnet.setWeight(1, weight1)
-  nnet.setWeight(2, weight2)
+
+  setWeight(nnet, 0, weight0)
+  setWeight(nnet, 1, weight1)
+  setWeight(nnet, 2, weight2)
 
   x = np.matrix(np.ones(6)).reshape(3, 2)
   x[:, 1] = 2
