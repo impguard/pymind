@@ -16,6 +16,7 @@ class NeuralNetwork(object):
   #   bias (bool): whether a bias unit should be introduced in each layer
   #
   # Note: Only the hidden_units parameter is optional
+  # Note: The activation functions must be
   def __init__(self, params):
     # ----- Initialize parameters ------ #
     if "hidden_units" not in params:
