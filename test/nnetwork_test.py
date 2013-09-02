@@ -1,6 +1,6 @@
 import numpy as np
 from pymind.components import NNLayer, NeuralNetwork
-from pymind.matrixfunc import *
+from pymind.activationfn import *
 
 # Utility method for testing purposes only
 def setWeight(network, index, weight):

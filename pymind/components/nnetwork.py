@@ -68,10 +68,13 @@ class NeuralNetwork(object):
   def getLayer(self, index):
     return self.layers[index]
 
-  def feed_forward(self, x):
+  def checkInput(self, x):
     if x.shape[0] != self.input_units:
       raise Exception("The input x has the wrong number of rows. Expected %s." \
         % self.input_units)
+
+  def feed_forward(self, x):
+    self.checkInput(x)
 
     curr_z = x
     curr_a = None

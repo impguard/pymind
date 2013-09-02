@@ -1,5 +1,5 @@
 import numpy as np
-from pymind.matrixfunc import sigmoid
+from pymind.activationfn import sigmoid
 
 # Setup variables
 v1 = 3

@@ -1,6 +1,6 @@
 import numpy as np
 from pymind.components import NNLayer
-from pymind.matrixfunc import identity
+from pymind.activationfn import identity
 
 def testNetworkLayer():
   # Create a network layer with the identity function
