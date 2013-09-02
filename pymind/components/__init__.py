@@ -1,2 +1,2 @@
-from nnetwork import *
-from nnlayer import *
+from __nnetwork import *
+from __nnlayer import *
