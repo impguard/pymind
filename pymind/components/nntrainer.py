@@ -10,7 +10,6 @@ class NNTrainer(object):
 
   def train(self, X, y):
 
-
     # Minimize
 
   def createCostFn(self, X, y)
