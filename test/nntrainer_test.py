@@ -17,8 +17,8 @@ def testGradient():
   # Create NNTrainer
   trainer = NNTrainer(nnet,logitError,1)
   # Create Random Data
-  X = nprandom((10,1000))
-  y = nprandom((6,1000))
+  X = np.matrix(nprandom((10,500)))
+  y = np.matrix(nprandom((6,500)))
   # Create Cost Function
   costFn = trainer.createCostFn(X,y)
   # Run Cost Function and retrieve gradient
@@ -26,10 +26,9 @@ def testGradient():
   cst,grd = costFn(wvec)
   # Run computeNumericalGradient with the network costs and weights
   cgrd = computeNumericalGradient(costFn,wvec)
-  cgrdvec,grdvec = cgrd.T,grd.T
-  for i in range(len(cgrdvec)):
-    np.testing.assert_array_almost_equal(cgrdvec[i], grdvec[i], decimal = 3,
-      err_msg = "The output grd at index %d should be \n %r \n != %r" % (i, cgrdvec[i], grdvec[i]))
+  for i in range(len(cgrd)):
+    np.testing.assert_array_almost_equal(cgrd[i], grd[i], decimal = 3,
+      err_msg = "The output grd at index %d should be \n %r \n != %r" % (i, cgrd[i], grd[i]))
 
 """
 Computes the gradient of the weight vector _weights_, given a cost
@@ -37,7 +36,7 @@ function _costFn_ and an optional epsilon _e_. Smaller epsilon values
 allow more accurate estimations of the gradient.
 """
 def computeNumericalGradient(costFn, weights, e=0.01):
-  wsize = len(weights)
+  wsize = weights.size
   grd = np.empty(wsize)
   for i in xrange(wsize):
     w = weights[i]
@@ -49,4 +48,4 @@ def computeNumericalGradient(costFn, weights, e=0.01):
     c_dec,_ = costFn(weights)
     grd[i] = (c_inc - c_dec)/(2*e)
     weights[i] = w
-  return np.matrix(grd).reshape((1,wsize))
+  return np.matrix(grd).reshape((wsize,1))
