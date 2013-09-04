@@ -51,7 +51,7 @@ class NNTrainer(object):
       # Unregularized Cost
       cost = (1. / m) * error.sum()
       # Regularized
-      cost += (self.learn_rate / 2. * m) * sum(np.sum(np.power(weight[:, bias:], 2)) for weight in self.nn.weights)
+      cost += (self.learn_rate / (2. * m)) * sum(np.sum(np.power(weight[:, bias:], 2)) for weight in self.nn.weights)
 
       # Part 2: Backpropogation
       d = deque()
