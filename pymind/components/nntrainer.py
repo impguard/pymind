@@ -48,7 +48,12 @@ class NNTrainer(object):
 
       # Part 1: Feed-forward + Get error
       z, a = self.nn.feed_forward(X)
-      cost = self.err_fn.calc(a[-1], y)
+      # Errors
+      error = self.err_fn.calc(a[-1], y)
+      # Unregularized Cost
+      cost = (1. / m) * sum(error)
+      # Regularized
+      cost += (self.learn_rate / 2. * m) * sum(sum(np.power(weight[:, bias:], 2)) for weight in self.nn.weights)
 
       # Part 2: Backpropogation
       d = deque()
