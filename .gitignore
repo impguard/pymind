@@ -17,3 +17,12 @@ Thumbs.db
 # Ignore VirtualEnv #
 #####################
 venv/*
+
+# Ignore Sublime project files #
+################################
+*.sublime-workspace
+*.sublime-project
+
+# Miscellaneous Scripts #
+#########################
+activate.bat
