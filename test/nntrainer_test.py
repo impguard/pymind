@@ -15,12 +15,12 @@ def testGradient():
   }
   nnet = NeuralNetwork(params)
   # Create NNTrainer
-  NNTrainer(nnet,logitError,1)
+  trainer = NNTrainer(nnet,logitError,1)
   # Create Random Data
   X = nprandom((1000,10))
   y = nprandom((1000,6))
   # Create Cost Function
-  costFn = NNTrainer.createCostFn(X,y)
+  costFn = trainer.createCostFn(X,y)
   # Run Cost Function and retrieve gradient
   wvec = nprandom(sum([w.size for w in nnet.weights]))
   cst,grd = costFn(wvec)
@@ -30,7 +30,7 @@ def testGradient():
     np.testing.assert_array_almost_equal(cgrd[i], grd[i], decimal = 4,
       err_msg = "The output grd at index %d should be \n %r \n != %r" % (i, cgrd[i], grd[i]))
 
-""" 
+"""
 Computes the gradient of the weight vector _weights_, given a cost
 function _costFn_ and an optional epsilon _e_. Smaller epsilon values
 allow more accurate estimations of the gradient.

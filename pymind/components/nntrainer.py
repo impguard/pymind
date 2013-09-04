@@ -1,6 +1,6 @@
+import numpy as np
 from nnetwork import NeuralNetwork
 from nnlayer import NNLayer
-
 from collections import deque
 from scipy.optimize import fmin_l_bfgs_b
 
