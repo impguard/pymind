@@ -57,7 +57,7 @@ class NNTrainer(object):
 
       # Part 2: Backpropogation
       d = deque()
-      lastD = np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]) , self.err_fn.grad(a[-1], y)
+      lastD = np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]), self.err_fn.grad(a[-1], y))
       d.appendleft(lastD)
 
       for i in range(len(self.nn.layers) - 2, 1, -1):
