@@ -38,4 +38,4 @@ class logitError(_errfn):
 
   @classmethod
   def _grad(cls, h, y):
-    return np.divide(h-y, np.multiply(-h, 1-h))
+    return np.divide(h-y, np.multiply(h, 1-h))

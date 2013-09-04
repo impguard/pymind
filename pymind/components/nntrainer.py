@@ -13,7 +13,8 @@ class NNTrainer(object):
   def train(self, X, y):
     costFn = self.createCostFn(X, y)
     # Minimize!
-    x, f, d = fmin_l_bfgs_b(costFn, np.vstack(self.nn.weights).flatten())
+
+    # x, f, d = fmin_l_bfgs_b(costFn, np.vstack(self.nn.weights).flatten())
 
   """ Creates a cost function for a given dataset (X, y)
 
@@ -27,9 +28,6 @@ class NNTrainer(object):
   """
   def createCostFn(self, X, y):
     def costFn(params):
-      # Flip since scipy passes in a row vector
-      params = params.T
-
       # Reshape params to get weights
       weights = list()
       curr_index = 0
@@ -43,7 +41,7 @@ class NNTrainer(object):
       self.nn.weights = weights
 
       # Helper variables
-      m = X.shape[1] 
+      m = X.shape[1]
       bias = 1 if self.nn.bias else 0
 
       # Part 1: Feed-forward + Get error
@@ -79,5 +77,5 @@ class NNTrainer(object):
       # Unroll gradients
       grad = np.hstack([g.flatten() for g in grads])
 
-      return cost, grad
+      return cost, grad.T
     return costFn
