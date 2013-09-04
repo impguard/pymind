@@ -36,7 +36,7 @@ class NNTrainer(object):
       for weight in self.nn.weights:
         shape = weight.shape
         size = weight.size
-        weights.append(np.matrix(params[curr_index, curr_index + size].reshape(shape)))
+        weights.append(np.matrix(params[curr_index:curr_index + size].reshape(shape)))
         curr_index += size
 
       # Set the weights of the neural network
@@ -44,7 +44,7 @@ class NNTrainer(object):
 
       # Helper variables
       m = X.shape[1]
-      bias = 1 if self.bias else 0
+      bias = 1 if self.nn.bias else 0
 
       # Part 1: Feed-forward + Get error
       z, a = self.nn.feed_forward(X)
@@ -53,14 +53,14 @@ class NNTrainer(object):
       # Unregularized Cost
       cost = (1. / m) * sum(error)
       # Regularized
-      cost += (self.learn_rate / 2. * m) * sum(sum(np.power(weight[:, bias:], 2)) for weight in self.nn.weights)
+      cost += (self.learn_rate / 2. * m) * sum(np.sum(np.power(weight[:, bias:], 2)) for weight in self.nn.weights)
 
       # Part 2: Backpropogation
       d = deque()
       lastD = np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]), self.err_fn.grad(a[-1], y))
       d.appendleft(lastD)
 
-      for i in range(len(self.nn.layers) - 2, 1, -1):
+      for i in range(len(self.nn.layers) - 2, 0, -1):
         fn = self.nn.layers[i].activationfn
         nextD = np.multiply(self.nn.weights[i][:, bias:].T * d[0], fn.grad(z[i]))
         d.appendleft(nextD)
@@ -71,13 +71,13 @@ class NNTrainer(object):
       grads = list()
       for i in range(len(self.nn.weights)):
         # Unregularized
-        tmpGrad = (1. / m) * d[i+1] * a[i]
+        tmpGrad = (1. / m) * d[i+1] * a[i].T
         # Regularized
         tmpGrad[:, bias:] += (self.learn_rate / m) * tmpGrad[:, bias:]
         grads.append(tmpGrad)
 
       # Unroll gradients
-      grad = np.vstack(grads).flatten()
+      grad = np.hstack([g.flatten() for g in grads])
 
       return cost, grad
     return costFn

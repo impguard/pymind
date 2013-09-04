@@ -17,8 +17,8 @@ def testGradient():
   # Create NNTrainer
   trainer = NNTrainer(nnet,logitError,1)
   # Create Random Data
-  X = nprandom((1000,10))
-  y = nprandom((1000,6))
+  X = nprandom((10,1000))
+  y = nprandom((6,1000))
   # Create Cost Function
   costFn = trainer.createCostFn(X,y)
   # Run Cost Function and retrieve gradient
@@ -42,8 +42,9 @@ def computeNumericalGradient(costFn, weights, e=0.01):
     w_inc = w + e
     w_dec = w - e
     weights[i] = w_inc
-    c_inc,_ = costFn(weights[i])
+    c_inc,_ = costFn(weights)
     weights[i] = w_dec
-    c_dec,_ = costFn(weights[i])
+    c_dec,_ = costFn(weights)
     grd[i] = (c_inc - c_dec)/(2*e)
+    weights[i] = w
   return grd
