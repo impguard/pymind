@@ -18,8 +18,8 @@ class NNTrainer(object):
   """ Creates a cost function for a given dataset (X, y)
 
   Args:
-      X: The featureset with rows representing a feature vector and columns representing training examples
-      y: The output vector with rows representing the output vector and columns representing training examples
+      X: The featureset with columns representing a feature vector and rows representing training examples
+      y: The output vector with columns representing the output vector and rows representing training examples
   Returns:
       a cost function that takes an unrolled set of params
   Note:
@@ -71,7 +71,7 @@ class NNTrainer(object):
       grads = list()
       for i in range(len(self.nn.weights)):
         # Unregularized
-        tmpGrad = (1. / m) * d[i+1] * a[i]'
+        tmpGrad = (1. / m) * d[i+1] * a[i]
         # Regularized
         tmpGrad[:, bias:] += (self.learn_rate / m) * tmpGrad[:, bias:]
         grads.append(tmpGrad)

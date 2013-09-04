@@ -22,7 +22,7 @@ class _errfn(object):
   def _grad(cls, h, y):
     raise Exception("_grad not implemented")
 
-class squaredError(errfn):
+class squaredError(_errfn):
   @classmethod
   def _calc(cls, h, y):
     return 0.5 * np.power(h-y, 2)
@@ -31,7 +31,7 @@ class squaredError(errfn):
   def _grad(cls, h, y):
     return h-y
 
-class logitError(errfn):
+class logitError(_errfn):
   @classmethod
   def _calc(cls, h, y):
     return -np.multiply(y, np.log(h)) - np.multiply(1-y, np.log(1-h))
