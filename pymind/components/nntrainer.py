@@ -8,7 +8,7 @@ class NNTrainer(object):
   def __init__(self, nn, err_fn, learn_rate):
     self.nn = nn
     self.err_fn = err_fn
-    self.learn_rate = learn_rate
+    self.learn_rate = float(learn_rate)
 
   def train(self, X, y):
     costFn = self.createCostFn(X, y)
@@ -41,7 +41,7 @@ class NNTrainer(object):
       self.nn.weights = weights
 
       # Helper variables
-      m = X.shape[1]
+      m = float(X.shape[1])
       bias = 1 if self.nn.bias else 0
 
       # Part 1: Feed-forward + Get error
@@ -51,11 +51,13 @@ class NNTrainer(object):
       # Unregularized Cost
       cost = (1. / m) * error.sum()
       # Regularized
-      cost += (self.learn_rate / (2. * m)) * sum(np.sum(np.power(weight[:, bias:], 2)) for weight in self.nn.weights)
+      cost += self.learn_rate / (2. * m) * sum(np.sum(np.power(weight[:, bias:], 2)) for weight in self.nn.weights)
 
       # Part 2: Backpropogation
       d = deque()
+
       lastD = np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]), self.err_fn.grad(a[-1], y))
+
       d.appendleft(lastD)
 
       for i in range(len(self.nn.layers) - 2, 0, -1):
