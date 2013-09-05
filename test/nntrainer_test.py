@@ -17,12 +17,13 @@ def testGradient():
   # Create NNTrainer
   trainer = NNTrainer(nnet,logitError,1)
   # Create Random Data
-  X = np.exp(-np.arange(-1,1,2/5000.0).reshape((10,500))**2)
-  y = np.exp(-np.arange(-1,1,2/3000.0).reshape((6,500))**2)
+  X = np.matrix(np.exp(-np.arange(-1,1,2.0/5000).reshape((10,500))**2))
+  y = np.matrix(np.exp(-np.arange(-1,1,2.0/3000).reshape((6,500))**2))
   # Create Cost Function
   costFn = trainer.createCostFn(X,y)
   # Run Cost Function and retrieve gradient
-  wvec = nprandom(sum([w.size for w in nnet.weights]))
+  wsize = sum([w.size for w in nnet.weights])
+  wvec = np.sin(3*np.arange(-1,1,2.0/wsize))
   cst,grd = costFn(wvec)
   # Run computeNumericalGradient with the network costs and weights
   cgrd = computeNumericalGradient(costFn,wvec)
