@@ -64,6 +64,10 @@ class NeuralNetwork(object):
 
   # Useful methods for using a NeuralNetwork
   def feed_forward(self, x):
+    if x.shape[0] != self.input_units:
+      raise Exception("Dimension Error: Neural Network accepts %d input units but recieved %d" % \
+        (self.input_units, x.shape[0]))
+
     curr_z = x
     curr_a = None
     z = list()
