@@ -3,7 +3,6 @@ from nnlayer import NNLayer
 from ..util import initRandParams
 
 class NeuralNetwork(object):
-
   """ Create a neural network by passing in a dictionary of parameters.
 
   The parameters that are passed in include:
@@ -64,6 +63,19 @@ class NeuralNetwork(object):
 
   # Useful methods for using a NeuralNetwork
   def feed_forward(self, x):
+    """ Runs the feed forward process with this neural network.
+
+    This function takes in the input vector x and runs the feed forward process. However, x must be
+    the correct dimension matching the number of input units this neural network accepts.
+
+    Note: The actual output of the process is stored in a[-1]
+
+    Arguments:
+    x -- A column vector with dimensions (self.input_units x 1)
+    Returns:
+    z -- A list of column vectors representing the inputs to each layer in the neural network
+    a -- A list of column vectors representing the outputs of each layer in the neural network
+    """
     if x.shape[0] != self.input_units:
       raise Exception("Dimension Error: Neural Network accepts %d input units but recieved %d" % \
         (self.input_units, x.shape[0]))
