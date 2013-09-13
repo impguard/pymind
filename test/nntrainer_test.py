@@ -28,8 +28,8 @@ def testGradient():
   # Run computeNumericalGradient with the network costs and weights
   cgrd = computeNumericalGradient(costFn,wvec)
 
-  for i in xrange(len(cgrd)):
-    print "%10.6f %10.6f" % (cgrd[i], grd[i])
+  # for i in xrange(len(cgrd)):
+  #   print "%10.6f %10.6f" % (cgrd[i], grd[i])
   for i in range(len(cgrd)):
     np.testing.assert_array_almost_equal(cgrd[i], grd[i], decimal = 3,
       err_msg = "The output grd at index %d should be \n %r \n != %r" % (i, cgrd[i], grd[i]))
