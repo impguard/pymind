@@ -1,3 +1,16 @@
+""" Package of common activation functions.
+
+An activation function is a static object that has two generalized class methods calc and grad. The
+activation function takes one argument and returns either the activation if calc is called or the
+gradient of the activation function if grad is called.
+
+Any sublcass of an activation function can implement the methods _calc and _grad to perform a
+specific activation function on the passed argument.
+
+The activation function always transforms any input into a numpy matrix and performs element-wise
+operations.
+"""
+
 import numpy as np
 
 class _activationfn(object):
@@ -21,6 +34,7 @@ class _activationfn(object):
     raise Exception("_grad not implemented")
 
 class sigmoid(_activationfn):
+  """ Performs the sigmoid activation function. """
   @classmethod
   def _calc(cls, v):
     e = np.matrix(np.ones(v.shape) * np.e)
@@ -32,6 +46,7 @@ class sigmoid(_activationfn):
     return np.multiply(val, 1-val)
 
 class identity(_activationfn):
+  """ Performs the simple identity activation function. """
   @classmethod
   def _calc(cls, v):
     return v

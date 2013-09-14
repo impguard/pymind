@@ -1,78 +1,163 @@
+import numpy as np
 from nnetwork import NeuralNetwork
 from nnlayer import NNLayer
-
 from collections import deque
 from scipy.optimize import fmin_l_bfgs_b
 
 class NNTrainer(object):
-  def __init__(self, nn, err_fn, learn_rate):
-    self.nn = nn
-    self.err_fn = err_fn
-    self.learn_rate = learn_rate
+  """ A NNTrainer takes a neural network and trains it given a training dataset.
 
-  def train(self, X, y):
-    costFn = self.createCostFn(X, y)
-    # Minimize!
-    x, f, d = fmin_l_bfgs_b(costFn, np.vstack(self.nn.weights).flatten())
-
-  """ Creates a cost function for a given dataset (X, y)
-
-  Args:
-      X: The featureset with rows representing a feature vector and columns representing training examples
-      y: The output vector with rows representing the output vector and columns representing training examples
-  Returns:
-      a cost function that takes an unrolled set of params
-  Note:
-      the returned cost function returns the tuple (cost, gradient) based on the error function used for the trainer
+  The NNTrainer can be initialized with a neural network. Then, depending on which training method
+  is used, the NNTrainer will automatically update the neural network's weights to a optimal level.
   """
-  def createCostFn(self, X, y):
-    def costFn(params):
-      # Flip since scipy passes in a row vector
-      params = params.T
+  def __init__(self, nn):
+    self.nn = nn
 
-      # Reshape params to get weights
+  def train(X, y, learn_rate, errorfn):
+    costfn = createCostfn(X, y, learn_rate, errorfn)
+    def flattenedCostfn(weights):
+      """ Wrapper function that flattens inputs to pass to a scipy optimization function
+
+      Arguments:
+      weights -- a row vector of weights
+      Returns:
+      The cost and the gradient of the neural network given the weights.
+      """
+      cost, grad = costfn(reshapeWeights(weights.T))
+      return cost, unrollWeights(grad).T
+
+    min_weights_vector, value, d = fmin_l_bfgs_b(flattenedCostfn, unrollWeights(self.nn.weights).T)
+
+    self.nn.weights = reshapeWeights(min_weights_vector)
+
+    return min_weights_vector, value
+
+  def createCostfn(self, X, y, learn_rate, errorfn, computeGrad=True):
+    """ Creates a cost function that takes in a list of weights and returns the error cost.
+
+    This method creates a method that, given a column vector of weights, first calculates the cost
+    of using the list of weights with the provided dataset and then calculates the gradient of the
+    cost using the list of weights with the provided dataset.
+
+    The gradient of the cost if calculated using backpropogation, and the gradient utilizes the grad
+    function in each of the neural network's layers as well as the grad function of the provided
+    error function.
+
+    Arguments:
+    X -- The featureset with each column representing a feature vector for one training example.
+    y -- The output vector with each column representing the output vector for one training example.
+    learn_rate -- The learning rate for regularization
+    errorfn -- Error function used when computing cost
+    computeGrad -- Whether or not to compute the gradient or not in addition to the cost
+    Returns:
+    A cost function that takes a list of weights.
+
+    Note: The number of columns in X and y represent the number of training examples, so the number
+    of columns of each must match up. Otherwise, a matrix dimension mismatch error will be raised.
+    """
+    learn_rate = float(learn_rate)
+
+    def costfn(weights):
+      """ The cost function created by createCostfn.
+
+      Uses the parameters passed to createCostfn to calculate the cost and the gradient given a list
+      of weights. The weights should be correctly shaped. The cost function depends on the error
+      function provided and uses regularization. How much regularization is used can be tuned with
+      the learning rate (lambda).
+
+      Returns:
+      The cost and, if computeGrad is True, the gradient of the neural network.
+      """
+      try:
+        # Set the weights of the neural network
+        self.nn.weights = weights
+
+        # Helper variables
+        m = float(X.shape[1]) # Number of training examples
+        bias = 1 if self.nn.bias else 0
+
+        # Part 1: Feed forward and get cost
+        z, a = self.nn.feed_forward(X)
+        h = a[-1] # Hypothesis
+        err_vector = errorfn.calc(h, y)
+        unreg_cost = (1. / m) * err_vector.sum() # Unregularized cost
+        sum_squared_weights = np.sum([np.square(weight[:, bias:]).sum() for weight in weights])
+        reg_cost = (learn_rate / (2 * m)) * sum_squared_weights # Regularized cost
+        cost = reg_cost + unreg_cost
+
+        if computeGrad:
+          # Part 2: Backpropogation and get grad
+          d = deque()
+
+          # Calculate deltas
+          d.appendleft(np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]), errorfn.grad(h, y)))
+
+          for i in range(len(self.nn.layers) - 2, 0, -1):
+            prevD = d[0]
+            activationfn = self.nn.layers[i].activationfn
+            weight = weights[i]
+            d.appendleft(np.multiply(activationfn.grad(z[i]), weight[:, bias:].T * prevD))
+
+          d.appendleft(None) # Filler since d0 is unimportant
+
+          # Calculate gradients
+          grads = list()
+          for i in range(len(self.nn.weights)):
+            # Unregularized gradient
+            unreg_grad = (1. / m) * d[i+1] * a[i].T
+            # Regularized gradient excluding bias
+            reg_grad = (learn_rate / m) * weights[i][:, bias:]
+            # Create gradient
+            grad = unreg_grad
+            grad[:, bias:] += reg_grad
+            grads.append(grad)
+
+          return cost, grads
+        else:
+          return cost
+      except ValueError:
+        print "Calculating cost of a neural network failed. Most likely due to dimension mismatch."
+        raise
+    return costfn
+
+  def reshapeWeights(self, unrolled_weights):
+    """ Reshapes an unrolled column vector of weights into the proper sizes.
+
+    Assumes that the correct number of weights are passed, and uses the neural network's weight
+    shapes and sizes to determine how to reshape the unrolled weights.
+
+    Arguments:
+    unrolled_weights -- A column vector of unrolled weights
+    Returns:
+    A list of matrices for each reshaped weight matrix (copy).
+
+    Note: This method assumes that the size of unroll_weights is correct.
+    """
+    try:
+      unrolled_weights = np.matrix(unrolled_weights)
       weights = list()
       curr_index = 0
       for weight in self.nn.weights:
         shape = weight.shape
         size = weight.size
-        weights.append(np.matrix(params[curr_index, curr_index + size].reshape(shape)))
+        weight = np.matrix(unrolled_weights[curr_index:curr_index + size]).reshape(shape)
+        weights.append(weight)
         curr_index += size
+      return weights
+    except ValueError:
+      print "Reshaping weights failed. Most likely due to incorrect size of unrolled_weights."
+      raise
 
-      # Set the weights of the neural network
-      self.nn.weights = weights
+  def unrollWeights(self, weights):
+    """ Unrolls a list of weights into a column vector.
 
-      # Helper variables
-      m = X.shape[1]
-      bias = 1 if self.bias else 0
+    Presumes that a list of weights of the proper dimensions are passed. Technically does not need
+    to be bound to nntrainer, but unrolling is a common function being used in trainer, so this
+    is simply a helper function.
 
-      # Part 1: Feed-forward + Get error
-      z, a = self.nn.feed_forward(X)
-      cost = self.err_fn.calc(a[-1], y)
-
-      # Part 2: Backpropogation
-      d = deque()
-      lastD = np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]) , self.err_fn.grad(a[-1], y)
-      d.appendleft(lastD)
-
-      for i in range(len(self.nn.layers) - 2, 1, -1):
-        fn = self.nn.layers[i].activationfn
-        nextD = np.multiply(self.nn.weights[i][:, bias:].T * d[0], fn.grad(z[i]))
-        d.appendleft(nextD)
-
-      d.appendleft(None) # Filler so the indexes matchup
-
-      # Get gradients
-      grads = list()
-      for i in range(len(self.nn.weights)):
-        # Unregularized
-        tmpGrad = (1. / m) * d[i+1] * a[i]'
-        # Regularized
-        tmpGrad[:, bias:] += (self.learn_rate / m) * tmpGrad[:, bias:]
-        grads.append(tmpGrad)
-
-      # Unroll gradients
-      grad = np.vstack(grads).flatten()
-
-      return cost, grad
-    return costFn
+    Returns:
+    A column vector representing the unrolled weight vector (copy).
+    """
+    weights = [np.matrix(weight) for weight in weights]
+    unrolled_list = [weight.ravel() for weight in weights]
+    return np.hstack(unrolled_list).T
