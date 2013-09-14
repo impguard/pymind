@@ -209,4 +209,4 @@ def testUnrollReshapeWeights():
   for i in range(len(reshapedWeights)):
     np.testing.assert_array_equal(reshapedWeights[i], nnet.weights[i],
       err_msg = "The reshapedWeight at index %d is not the same as the \
-      same weight in the neural network." % i)
+      same weight in the neural network." % i

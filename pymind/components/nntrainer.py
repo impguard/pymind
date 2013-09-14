@@ -13,6 +13,25 @@ class NNTrainer(object):
   def __init__(self, nn):
     self.nn = nn
 
+  def train(X, y, learn_rate, errorfn):
+    costfn = createCostfn(X, y, learn_rate, errorfn)
+    def flattenedCostfn(weights):
+      """ Wrapper function that flattens inputs to pass to a scipy optimization function
+
+      Arguments:
+      weights -- a row vector of weights
+      Returns:
+      The cost and the gradient of the neural network given the weights.
+      """
+      cost, grad = costfn(reshapeWeights(weights.T))
+      return cost, unrollWeights(grad).T
+
+    min_weights_vector, value, d = fmin_l_bfgs_b(flattenedCostfn, unrollWeights(self.nn.weights).T)
+
+    self.nn.weights = reshapeWeights(min_weights_vector)
+
+    return min_weights_vector, value
+
   def createCostfn(self, X, y, learn_rate, errorfn, computeGrad=True):
     """ Creates a cost function that takes in a list of weights and returns the error cost.
 
@@ -45,6 +64,7 @@ class NNTrainer(object):
       of weights. The weights should be correctly shaped. The cost function depends on the error
       function provided and uses regularization. How much regularization is used can be tuned with
       the learning rate (lambda).
+
       Returns:
       The cost and, if computeGrad is True, the gradient of the neural network.
       """
