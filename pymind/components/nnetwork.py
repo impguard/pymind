@@ -76,29 +76,29 @@ class NeuralNetwork(object):
     z -- A list of column vectors representing the inputs to each layer in the neural network
     a -- A list of column vectors representing the outputs of each layer in the neural network
     """
-    if x.shape[0] != self.input_units:
-      raise Exception("Dimension Error: Neural Network accepts %d input units but recieved %d" % \
-        (self.input_units, x.shape[0]))
+    try:
+      curr_z = x
+      curr_a = None
+      z = list()
+      a = list()
+      weights = self.weights.__iter__()
 
-    curr_z = x
-    curr_a = None
-    z = list()
-    a = list()
-    weights = self.weights.__iter__()
+      for i in range(len(self.layers)):
+        layer = self.layers[i]
+        isOutput = i == len(self.layers) - 1
+        # Activation Step
+        curr_a = layer.activate(curr_z)
+        if self.bias and not isOutput:
+          ones = np.ones((1, curr_a.shape[1]))
+          curr_a = np.vstack((ones, curr_a))
+        z.append(curr_z)
+        a.append(curr_a)
+        if isOutput:
+          break
+        # Feed Forward Step
+        curr_z = weights.next() * curr_a
 
-    for i in range(len(self.layers)):
-      layer = self.layers[i]
-      isOutput = i == len(self.layers) - 1
-      # Activation Step
-      curr_a = layer.activate(curr_z)
-      if self.bias and not isOutput:
-        ones = np.ones((1, curr_a.shape[1]))
-        curr_a = np.vstack((ones, curr_a))
-      z.append(curr_z)
-      a.append(curr_a)
-      if isOutput:
-        break
-      # Feed Forward Step
-      curr_z = weights.next() * curr_a
-
-    return z, a
+      return z, a
+    except ValueError:
+      print "Feed forward process failed. Most likely due to matrix dimension mismatch."
+      raise

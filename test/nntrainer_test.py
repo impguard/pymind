@@ -4,6 +4,56 @@ from pymind.components import NeuralNetwork, NNTrainer
 from pymind.activationfn import *
 from pymind.errfn import *
 
+def generateMatrix(rows, columns, fn):
+  """ Generates a matrix of a given shape using the passed function.
+
+  Uses numpy.arange to create a row vector from 0 to the desired size, then reshapes the matrix to
+  the desired dimensions. Finally, applies the supplied numpy universal function to the matrix,
+  which by default is the sine function.
+
+  Arguments:
+  rows -- the number of desired rows
+  columns -- the number of desired columns
+  fn -- a numpy universal function (default: numpy.sin)
+  Returns
+  A matrix with dimensions (rows x columns) mutated with fn.
+  """
+  size = rows * columns
+  matrix = np.arange(size).reshape(rows, columns)
+  return fn(matrix)
+
+def testCost1():
+  """ Tests cost function of the nntrainer class. """
+
+  # Test co
+  params = {
+    "input_units": 10,
+    "output_units": 6,
+    "hidden_units": 8,
+    "activationfn": [identity, sigmoid, sigmoid],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+  trainer = NNTrainer(nnet)
+
+  # Create cost function parameters
+  X = generateMatrix(10, 3)
+  y = generateMatrix(6, 3)
+  learn_rate = 0
+  errfn = logitError
+
+  # Create cost function
+  costfn = trainer.createCostfn(X, y, learn_rate, errfn)
+
+  # Generate input weights
+  weights = list()
+  weights.append(generateMatrix(8, 11))
+  weights.append(generateMatrix(6, 9))
+
+  # Run cost function
+  pass
+
+"""
 def testGradient():
   # Create Neural NeuralNetwork
   params = {
@@ -34,11 +84,6 @@ def testGradient():
     np.testing.assert_array_almost_equal(cgrd[i], grd[i], decimal = 3,
       err_msg = "The output grd at index %d should be \n %r \n != %r" % (i, cgrd[i], grd[i]))
 
-"""
-Computes the gradient of the weight vector _weights_, given a cost
-function _costFn_ and an optional epsilon _e_. Smaller epsilon values
-allow more accurate estimations of the gradient.
-"""
 def computeNumericalGradient(costFn, weights, e=0.000001):
   wsize = weights.size
   grd = np.empty(wsize)
@@ -53,3 +98,4 @@ def computeNumericalGradient(costFn, weights, e=0.000001):
     grd[i] = (c_inc - c_dec)/(2*e)
     weights[i] = w
   return np.matrix(grd).reshape((wsize,1))
+"""
