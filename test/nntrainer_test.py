@@ -38,8 +38,8 @@ def computeNumericalGradient(fn, x, e = 1e-4):
   perturb = np.matrix(np.zeros(x.shape))
   for i in range(numGrad.size):
     perturb[i] = e
-    pos = fn(x + e)
-    neg = fn(x - e)
+    pos = fn(x + perturb)
+    neg = fn(x - perturb)
     numGrad[i] = (pos - neg) / (2. * e)
     perturb[i] = 0
 
@@ -148,9 +148,47 @@ def testGradientAccuracy1():
   unrolledCostfn = lambda w: costfn(trainer.reshapeWeights(w))
 
   testGrad = computeNumericalGradient(unrolledCostfn, trainer.unrollWeights(weights))
-  # print trainer.unrollWeights(grad)
 
-  np.testing.assert_array_almost_equal(trainer.unrollWeights(grad), testGrad, decimal = 10,
+  np.testing.assert_array_almost_equal(trainer.unrollWeights(grad), testGrad, decimal = 9,
+      err_msg = "Trainer gradient calculation is not accurate enough.")
+
+def testGradientAccuracy2():
+  """ Tests accuracy of the trainer's gradient calculation to 10 sig. digits.
+
+  Turns on regularization by setting learn_rate to 1.
+  """
+  params = {
+    "input_units": 15,
+    "output_units": 10,
+    "hidden_units": [12, 12],
+    "activationfn": [identity, sigmoid, sigmoid, sigmoid],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+  trainer = NNTrainer(nnet)
+
+  # Create cost function parameters
+  X = generateMatrix(15, 100)
+  y = generateMatrix(10, 100)
+  learn_rate = 1.5
+  errfn = logitError
+
+  # Create cost function
+  costfn = trainer.createCostfn(X, y, learn_rate, errfn)
+
+  # Generate input weights
+  weights = [generateMatrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
+
+  # Run cost function
+  cost, grad = costfn(weights)
+
+  # Simple unrolled cost function to use in computeNumericalGradient
+  costfn = trainer.createCostfn(X, y, learn_rate, errfn, False)
+  unrolledCostfn = lambda w: costfn(trainer.reshapeWeights(w))
+
+  testGrad = computeNumericalGradient(unrolledCostfn, trainer.unrollWeights(weights))
+
+  np.testing.assert_array_almost_equal(trainer.unrollWeights(grad), testGrad, decimal = 9,
       err_msg = "Trainer gradient calculation is not accurate enough.")
 
 def testUnrollReshapeWeights():
