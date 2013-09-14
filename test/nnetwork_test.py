@@ -18,14 +18,14 @@ def testNNetworkConstruction():
   nnet = NeuralNetwork(params)
   input_layer = nnet.layers[0]
 
-  assert len(nnet.layers) == 3, "There should be three neural network layers: %d" % len(nnet.layers)
-  assert type(input_layer) == NNLayer, \
-    "The first neural network layer should be of type NNLayer: %s" % type(input_layer)
+  assert len(nnet.layers) == 3, "There should be three neural network layers."
+  assert type(input_layer) == NNLayer, "The first neural network layer should be of type NNLayer."
   assert input_layer.num_input == params["input_units"], \
-    "The first neural network layer should have %d input_units: %d" % (params["input_units"], input_layer.num_input)
+    "The first neural network layer should have %d input_units: %d" \
+    % (params["input_units"], input_layer.num_input)
   assert nnet.weights[0].shape == (params["hidden_units"], params["input_units"] + 1), \
-    "The first set of weights in the neural network should have a shape %s: %s" \
-    % (params["hidden_units"], (params["input_units"] + 1), nnet.weights[0].shape)
+    "The first set of weights in the neural network should have a shape %s" \
+    % (params["hidden_units"], (params["input_units"] + 1))
 
   # Test multiple hidden layers
   params = {
@@ -38,14 +38,14 @@ def testNNetworkConstruction():
   nnet = NeuralNetwork(params)
   input_layer = nnet.layers[0]
 
-  assert len(nnet.layers) == 5, "There should be five neural network layers: %d" % len(nnet.layers)
-  assert type(input_layer) == NNLayer, \
-    "The first neural network layer should be of type nnlayer: %s" % type(input_layer)
+  assert len(nnet.layers) == 5, "There should be five neural network layers."
+  assert type(input_layer) == NNLayer, "The first neural network layer should be of type nnlayer."
   assert input_layer.num_input == params["input_units"], \
-    "The first neural network layer should have %d input_units: %d" % (params["input_units"], input_layer.num_input)
+    "The first neural network layer should have %d input_units." \
+    % params["input_units"]
   assert nnet.weights[0].shape == (params["hidden_units"][0], params["input_units"]), \
-    "The first set of weights in the neural network should have a shape %s: %s" \
-    % ((params["hidden_units"][0], params["input_units"]), nnet.weights[0].shape)
+    "The first set of weights in the neural network should have a shape %s." \
+    % (params["hidden_units"][0], params["input_units"])
 
 def testForwardProp():
   # Create a simple neural network
@@ -92,6 +92,7 @@ def testForwardProp():
   setWeight(nnet, 1, weight1)
   setWeight(nnet, 2, weight2)
 
+  # Feed forward
   x = np.matrix(np.ones(6)).reshape(3, 2)
   x[:, 1] = 2
   z, a = nnet.feed_forward(x)
@@ -111,6 +112,53 @@ def testForwardProp():
 
   for i in range(len(z_test)):
     np.testing.assert_array_almost_equal(z_test[i], z[i], decimal = 4,
-      err_msg = "The output z at index %d should be \n %r \n != %r" % (i, z_test[i], z[i]))
+      err_msg = "The output z at index %d is incorrect" % i)
     np.testing.assert_array_almost_equal(a_test[i], a[i], decimal = 4,
-      err_msg = "The output a at index %d should be \n %r \n != %r" % (i, a_test[i], a[i]))
+      err_msg = "The output a at index %d is incorrect" % i)
+
+def testForwardPropAccuracy():
+  # Create a neural network
+  params = {
+    "input_units": 5,
+    "output_units": 2,
+    "hidden_units": 4,
+    "activationfn": [identity, sigmoid, sigmoid],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+
+  # Manually set weights for testing purposes
+  weight0 = np.matrix(np.sin(np.arange(24)).reshape(4, 6))
+  weight1 = np.matrix(np.sin(np.arange(10)).reshape(2, 5))
+
+  setWeight(nnet, 0, weight0)
+  setWeight(nnet, 1, weight1)
+
+  # Create input vector x
+  x = np.matrix(np.sin(np.arange(5))).reshape(5, 1)
+
+  # Feed forward
+  z, a = nnet.feed_forward(x)
+
+  # Create actual result (pre-calculated)
+  zt = list()
+  at = list()
+
+  zt.append(np.matrix([0.000000000000000, 0.841470984807897, 0.909297426825682,
+    0.141120008059867,-0.756802495307928]).T)
+  at.append(np.matrix([1.000000000000000, 0.000000000000000, 0.841470984807897,
+    0.909297426825682, 0.141120008059867,-0.756802495307928]).T)
+  zt.append(np.matrix([1.51238377107558, 1.60786185814031, 1.57525859137397, 1.41717112831568]).T)
+  at.append(np.matrix([1.000000000000000, 0.819414212940607, 0.833114321891000,
+    0.828531970380330, 0.804894555480342]).T)
+  zt.append(np.matrix([0.954838224166471, 0.510890501950654]).T)
+  at.append(np.matrix([0.722087142278112, 0.625015205701210]).T)
+
+  # Comparison!
+
+  for i in range(len(z)):
+    np.testing.assert_array_almost_equal(z[i], zt[i], decimal=10,
+      err_msg = "The output z at index %d is incorrect" % i)
+    np.testing.assert_array_almost_equal(a[i], at[i], decimal = 10,
+      err_msg = "The output a at index %d is incorrect" % i)
+

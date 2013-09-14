@@ -3,7 +3,6 @@ from nnlayer import NNLayer
 from ..util import initRandParams
 
 class NeuralNetwork(object):
-
   """ Create a neural network by passing in a dictionary of parameters.
 
   The parameters that are passed in include:
@@ -16,7 +15,6 @@ class NeuralNetwork(object):
     bias (bool): whether a bias unit should be introduced in each layer
 
   Note: Only the hidden_units parameter is optional
-  Note: The activation functions must be
   """
   def __init__(self, params):
     # ----- Initialize parameters ------ #
@@ -64,25 +62,42 @@ class NeuralNetwork(object):
 
   # Useful methods for using a NeuralNetwork
   def feed_forward(self, x):
-    curr_z = x
-    curr_a = None
-    z = list()
-    a = list()
-    weights = self.weights.__iter__()
+    """ Runs the feed forward process with this neural network.
 
-    for i in range(len(self.layers)):
-      layer = self.layers[i]
-      isOutput = i == len(self.layers) - 1
-      # Activation Step
-      curr_a = layer.activate(curr_z)
-      if self.bias and not isOutput:
-        ones = np.ones((1, curr_a.shape[1]))
-        curr_a = np.vstack((ones, curr_a))
-      z.append(curr_z)
-      a.append(curr_a)
-      if isOutput:
-        break
-      # Feed Forward Step
-      curr_z = weights.next() * curr_a
+    This function takes in the input vector x and runs the feed forward process. However, x must be
+    the correct dimension matching the number of input units this neural network accepts.
 
-    return z, a
+    Note: The actual output of the process is stored in a[-1]
+
+    Arguments:
+    x -- A column vector with dimensions (self.input_units x 1)
+    Returns:
+    z -- A list of column vectors representing the inputs to each layer in the neural network
+    a -- A list of column vectors representing the outputs of each layer in the neural network
+    """
+    try:
+      curr_z = x
+      curr_a = None
+      z = list()
+      a = list()
+      weights = self.weights.__iter__()
+
+      for i in range(len(self.layers)):
+        layer = self.layers[i]
+        isOutput = i == len(self.layers) - 1
+        # Activation Step
+        curr_a = layer.activate(curr_z)
+        if self.bias and not isOutput:
+          ones = np.ones((1, curr_a.shape[1]))
+          curr_a = np.vstack((ones, curr_a))
+        z.append(curr_z)
+        a.append(curr_a)
+        if isOutput:
+          break
+        # Feed Forward Step
+        curr_z = weights.next() * curr_a
+
+      return z, a
+    except ValueError:
+      print "Feed forward process failed. Most likely due to matrix dimension mismatch."
+      raise
