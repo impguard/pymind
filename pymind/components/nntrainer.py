@@ -13,8 +13,8 @@ class NNTrainer(object):
   def __init__(self, nn):
     self.nn = nn
 
-  def train(X, y, learn_rate, errorfn):
-    costfn = createCostfn(X, y, learn_rate, errorfn)
+  def train(self,X, y, learn_rate, errorfn):
+    costfn = self.createCostfn(X, y, learn_rate, errorfn)
     def flattenedCostfn(weights):
       """ Wrapper function that flattens inputs to pass to a scipy optimization function
 
@@ -23,12 +23,13 @@ class NNTrainer(object):
       Returns:
       The cost and the gradient of the neural network given the weights.
       """
-      cost, grad = costfn(reshapeWeights(weights.T))
-      return cost, unrollWeights(grad).T
+      cost, grad = costfn(self.reshapeWeights(np.matrix(weights).T))
+      return cost, self.unrollWeights(grad).T
 
-    min_weights_vector, value, d = fmin_l_bfgs_b(flattenedCostfn, unrollWeights(self.nn.weights).T)
+    minvec = self.unrollWeights(self.nn.weights).T
+    min_weights_vector, value, d = fmin_l_bfgs_b(flattenedCostfn, minvec)
 
-    self.nn.weights = reshapeWeights(min_weights_vector)
+    self.nn.weights = self.reshapeWeights(min_weights_vector.T)
 
     return min_weights_vector, value
 
@@ -140,7 +141,8 @@ class NNTrainer(object):
       for weight in self.nn.weights:
         shape = weight.shape
         size = weight.size
-        weight = np.matrix(unrolled_weights[curr_index:curr_index + size]).reshape(shape)
+        unrolled = np.matrix(unrolled_weights[curr_index:curr_index + size])
+        weight = unrolled.reshape(shape)
         weights.append(weight)
         curr_index += size
       return weights
