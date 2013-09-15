@@ -2,7 +2,7 @@ import numpy as np
 from nnetwork import NeuralNetwork
 from nnlayer import NNLayer
 from collections import deque
-from scipy.optimize import fmin_l_bfgs_b
+from scipy.optimize import minimize
 
 class NNTrainer(object):
   """ A NNTrainer takes a neural network and trains it given a training dataset.
@@ -13,7 +13,7 @@ class NNTrainer(object):
   def __init__(self, nn):
     self.nn = nn
 
-  def train(self,X, y, learn_rate, errorfn):
+  def train(self, X, y, learn_rate, errorfn, iterations = 50, disp = False):
     costfn = self.createCostfn(X, y, learn_rate, errorfn)
     def flattenedCostfn(weights):
       """ Wrapper function that flattens inputs to pass to a scipy optimization function
@@ -24,14 +24,21 @@ class NNTrainer(object):
       The cost and the gradient of the neural network given the weights.
       """
       cost, grad = costfn(self.reshapeWeights(np.matrix(weights).T))
-      return cost, self.unrollWeights(grad).T
+      return cost, np.array(self.unrollWeights(grad).T)[0]
 
-    minvec = self.unrollWeights(self.nn.weights).T
-    min_weights_vector, value, d = fmin_l_bfgs_b(flattenedCostfn, minvec)
+    unrolled_weights_array = np.array(self.unrollWeights(self.nn.weights).T)[0]
 
-    self.nn.weights = self.reshapeWeights(min_weights_vector.T)
+    result = minimize(flattenedCostfn, unrolled_weights_array,
+      method='BFGS',
+      options = {'maxiter' :iterations, 'disp':disp},
+      jac =True)
 
-    return min_weights_vector, value
+    if result.success:
+      min_weights = self.reshapeWeights(np.matrix(result.x).T)
+      self.nn.weights = min_weights
+      return min_weights
+    else:
+      return None
 
   def createCostfn(self, X, y, learn_rate, errorfn, computeGrad=True):
     """ Creates a cost function that takes in a list of weights and returns the error cost.
