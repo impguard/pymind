@@ -7,7 +7,7 @@ def testSigmoidCalc1():
   result = sigmoid.calc(num)
   assert type(result) is np.matrix, "sigmoid.calc(3) should return a np.matrix"
   np.testing.assert_approx_equal(result.item(0), 0.952574126822433, significant = 10,
-    err_msg = "sigmoid.calc(3) should approximately return a value of 0.0.952574126822433")
+    err_msg = "sigmoid.calc(3) should approximately return a value of 0.952574126822433")
 
 def testSigmoidCalc2():
   """ Testing sigmoid.calc to 10 sig. digits. """
