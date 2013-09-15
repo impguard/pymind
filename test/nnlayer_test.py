@@ -3,7 +3,7 @@ from pymind.components import NNLayer
 from pymind.activationfn import identity
 
 def testNetworkLayer():
-  # Create a network layer with the identity function
+  """ Check construction of a network layer with the identity function. """
   layer = NNLayer(3, identity)
   z = np.matrix([3, 3, 3]).T
   a = layer.activate(z)

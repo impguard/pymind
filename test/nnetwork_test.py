@@ -6,8 +6,8 @@ from pymind.activationfn import *
 def setWeight(network, index, weight):
   network.weights[index] = weight
 
-def testNNetworkConstruction():
-  # Test single hidden layer
+def testNNetworkConstruction1():
+  """ Test construction of a neural network with a single hidden layer. """
   params = {
     "input_units": 5,
     "output_units": 3,
@@ -27,7 +27,8 @@ def testNNetworkConstruction():
     "The first set of weights in the neural network should have a shape %s" \
     % (params["hidden_units"], (params["input_units"] + 1))
 
-  # Test multiple hidden layers
+def testNNetworkConstruction2():
+  """ Test construction of a neural network with multiple hidden layers. """
   params = {
     "input_units": 5,
     "output_units": 3,
@@ -47,8 +48,8 @@ def testNNetworkConstruction():
     "The first set of weights in the neural network should have a shape %s." \
     % (params["hidden_units"][0], params["input_units"])
 
-def testForwardProp():
-  # Create a simple neural network
+def testForwardProp1():
+  """ Test forward propogation for a simple neural network. """
   params = {
     "input_units": 2,
     "output_units": 1,
@@ -72,7 +73,8 @@ def testForwardProp():
   assert a[2].size == 1, "The output should be a one element matrix: %r" % a[2].size
   assert a[2].item(0) == 7, "The output value should be 7: %d" % a[2].item(0)
 
-  # Create a more complex neural network
+def testForwardProp2():
+  """ Test forward propogation for a complex neural network. """
   params = {
     "input_units": 3,
     "hidden_units": [2, 2],
@@ -116,8 +118,8 @@ def testForwardProp():
     np.testing.assert_array_almost_equal(a_test[i], a[i], decimal = 4,
       err_msg = "The output a at index %d is incorrect" % i)
 
-def testForwardPropAccuracy():
-  # Create a neural network
+def testForwardProp3():
+  """ Test forward propogation for high accuracy. """
   params = {
     "input_units": 5,
     "output_units": 2,
