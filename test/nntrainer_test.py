@@ -212,11 +212,6 @@ def testUnrollReshapeWeights():
       same weight in the neural network." % i)
 
 def testXOR():
-  import numpy as np
-  from numpy.random import random as nprandom
-  from pymind.components import NeuralNetwork, NNTrainer
-  from pymind.activationfn import *
-  from pymind.errfn import *
   params = {
     "input_units": 2,
     "hidden_units": 2,
