@@ -61,7 +61,7 @@ class NNTrainer(object):
     def costfn(weights):
       """ The cost function created by createCostfn.
 
-      Uses the parameters passed to createCostfn to calculate the cost and the gradient given a list
+      Uses the weights passed to createCostfn to calculate the cost and the gradient given a list
       of weights. The weights should be correctly shaped. The cost function depends on the error
       function provided and uses regularization. How much regularization is used can be tuned with
       the learning rate (lambda).
