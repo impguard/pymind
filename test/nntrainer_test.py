@@ -210,3 +210,26 @@ def testUnrollReshapeWeights():
     np.testing.assert_array_equal(reshapedWeights[i], nnet.weights[i],
       err_msg = "The reshapedWeight at index %d is not the same as the \
       same weight in the neural network." % i)
+
+def testXOR():
+  import numpy as np
+  from numpy.random import random as nprandom
+  from pymind.components import NeuralNetwork, NNTrainer
+  from pymind.activationfn import *
+  from pymind.errfn import *
+  params = {
+    "input_units": 2,
+    "hidden_units": 2,
+    "output_units": 1,
+    "activationfn": [identity, sigmoid, sigmoid],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+  trainer = NNTrainer(nnet)
+
+  X = np.matrix([[0,0,1,1],[0,1,0,1]])
+  y = np.matrix([[0,1,1,0]])
+
+  trainer.train(X,y,1.0,logitError)
+
+
