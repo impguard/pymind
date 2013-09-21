@@ -23,7 +23,7 @@ class NNTrainer(object):
       Returns:
       The cost and the gradient of the neural network given the weights.
       """
-      cost, grad = costfn(self.reshapeWeights(np.matrix(weights).T))
+      cost, grad = costfn(self.reshapeWeights(np.matrix(weights)))
       return cost, np.array(self.unrollWeights(grad).T)[0]
 
     unrolled_weights_array = np.array(self.unrollWeights(self.nn.weights).T)[0]
@@ -129,20 +129,20 @@ class NNTrainer(object):
     return costfn
 
   def reshapeWeights(self, unrolled_weights):
-    """ Reshapes an unrolled column vector of weights into the proper sizes.
+    """ Reshapes an unrolled column or row vector of weights into the proper sizes.
 
     Assumes that the correct number of weights are passed, and uses the neural network's weight
     shapes and sizes to determine how to reshape the unrolled weights.
 
     Arguments:
-    unrolled_weights -- A column vector of unrolled weights
+    unrolled_weights -- A column or row vector of unrolled weights
     Returns:
-    A list of matrices for each reshaped weight matrix (copy).
+    A list of matrices for each reshaped weight matrix.
 
-    Note: This method assumes that the size of unroll_weights is correct.
+    Note: This method assumes that the size of unrolled_weights is correct.
     """
     try:
-      unrolled_weights = np.matrix(unrolled_weights)
+      unrolled_weights = unrolled_weights if unrolled_weights.shape[1] == 1 else unrolled_weights.T
       weights = list()
       curr_index = 0
       for weight in self.nn.weights:
@@ -160,13 +160,11 @@ class NNTrainer(object):
   def unrollWeights(self, weights):
     """ Unrolls a list of weights into a column vector.
 
-    Presumes that a list of weights of the proper dimensions are passed. Technically does not need
-    to be bound to nntrainer, but unrolling is a common function being used in trainer, so this
-    is simply a helper function.
+    Presumes that a list of weights of the proper dimensions are passed. Does not copy the passed
+    weights.
 
     Returns:
-    A column vector representing the unrolled weight vector (copy).
+    A column vector representing the unrolled weight vector.
     """
-    weights = [np.matrix(weight) for weight in weights]
     unrolled_list = [weight.ravel() for weight in weights]
     return np.hstack(unrolled_list).T
