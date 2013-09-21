@@ -184,8 +184,7 @@ class NNTrainer(object):
         curr_index += size
       return weights
     except ValueError:
-      print "NNTrainer: Reshaping weights failed. \
-        Most likely due to incorrect size of unrolled_weights."
+      print "NNTrainer: Reshaping weights failed. Most likely due to incorrect size of unrolled_weights."
       raise
 
   def unrollWeights(self, weights):

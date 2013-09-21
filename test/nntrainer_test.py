@@ -1,8 +1,22 @@
 import numpy as np
 from numpy.random import random as nprandom
 from pymind.components import NeuralNetwork, NNTrainer
-from pymind.activationfn import *
-from pymind.errfn import *
+from pymind.activationfn import sigmoid, identity
+from pymind.errfn import squaredError, logitError
+from scipy.optimize import minimize
+
+def createMinimizer(method = 'BFGS', tolerance = 1e-3, iterations = 50, display = False):
+  """ Creates a minimizer using scipy.optimize optimization functions. """
+  def minimizer(fn, initial_guess):
+    return minimize(fn, initial_guess,
+      method = method,
+      jac = True,
+      tol = tolerance,
+      options = {
+        'maxiter': iterations,
+        'disp': display
+      })
+  return minimizer
 
 def generateMatrix(rows, columns, fn = np.sin):
   """ Generates a matrix of a given shape using the passed function.
@@ -209,22 +223,83 @@ def testUnrollReshapeWeights():
   for i in range(len(reshapedWeights)):
     np.testing.assert_array_equal(reshapedWeights[i], nnet.weights[i],
       err_msg = "The reshapedWeight at index %d is not the same as the \
-      same weight in the neural network." % i)
+        same weight in the neural network." % i)
 
-def testXOR():
+def testOR():
   params = {
     "input_units": 2,
-    "hidden_units": 2,
     "output_units": 1,
-    "activationfn": [identity, sigmoid, sigmoid],
+    "activationfn": [identity, sigmoid],
     "bias": True
   }
   nnet = NeuralNetwork(params)
   trainer = NNTrainer(nnet)
 
-  X = np.matrix([[0,0,1,1],[0,1,0,1]])
-  y = np.matrix([[0,1,1,0]])
+  X = np.matrix([[0,0,1,1],
+                 [0,1,0,1]])
+  y = np.matrix([[0,1,1,1]])
 
-  trainer.train(X,y,1.0,logitError)
+  minimizer = createMinimizer(iterations = 50, display = False)
 
+  # Run 10 times and pick result with lowest error
+  min_error = float('infinity')
+  weights = None
+  for i in range(10):
+    result = trainer.train(X, y, 0, logitError, minimizer)
+    if result.fun < min_error:
+      min_error = result.fun
+      weights = result.x
+
+  # HACKHACK should be a easy way to set weights for a nnetwork
+  weights = trainer.reshapeWeights(np.matrix(weights))
+  nnet.weights = weights
+
+  for i in range(4):
+    x = X[:, i]
+    exp = y[:, i]
+    z, a = nnet.feed_forward(x)
+    h = a[-1]
+    h = np.where(h > 0.01, np.ones(h.shape), h)
+    h = np.where(h < 0.99, np.zeros(h.shape), h)
+    np.testing.assert_array_equal(h, exp,
+      err_msg = "Learning OR: %d or %d is not %d." % (x[0, 0], x[1, 0], h[0, 0]))
+
+def testAND():
+  params = {
+    "input_units": 2,
+    "output_units": 1,
+    "activationfn": [identity, sigmoid],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+  trainer = NNTrainer(nnet)
+
+  X = np.matrix([[0,0,1,1],
+                 [0,1,0,1]])
+  y = np.matrix([[0,0,0,1]])
+
+  minimizer = createMinimizer(iterations = 50, display = False)
+
+  # Run 10 times and pick result with lowest error
+  min_error = float('infinity')
+  weights = None
+  for i in range(10):
+    result = trainer.train(X, y, 0, logitError, minimizer)
+    if result.fun < min_error:
+      min_error = result.fun
+      weights = result.x
+
+  # HACKHACK should be a easy way to set weights for a nnetwork
+  weights = trainer.reshapeWeights(np.matrix(weights))
+  nnet.weights = weights
+
+  for i in range(4):
+    x = X[:, i]
+    exp = y[:, i]
+    z, a = nnet.feed_forward(x)
+    h = a[-1]
+    h = np.where(h > 0.01, np.ones(h.shape), h)
+    h = np.where(h < 0.99, np.zeros(h.shape), h)
+    np.testing.assert_array_equal(h, exp,
+      err_msg = "Learning OR: %d or %d is not %d." % (x[0, 0], x[1, 0], h[0, 0]))
 
