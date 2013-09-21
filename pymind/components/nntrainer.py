@@ -41,15 +41,10 @@ class NNTrainer(object):
       return None
 
   def createCostfn(self, X, y, learn_rate, errorfn, computeGrad=True):
-    """ Creates a cost function that takes in a list of weights and returns the error cost.
+    """ Creates a cost function given a set of input data and other parameters.
 
-    This method creates a method that, given a column vector of weights, first calculates the cost
-    of using the list of weights with the provided dataset and then calculates the gradient of the
-    cost using the list of weights with the provided dataset.
-
-    The gradient of the cost if calculated using backpropogation, and the gradient utilizes the grad
-    function in each of the neural network's layers as well as the grad function of the provided
-    error function.
+    This method uses the provided dataset and other parameters to create a cost function that will
+    calculate both a cost and a gradient.
 
     Arguments:
     X -- The featureset with each column representing a feature vector for one training example.
@@ -66,13 +61,22 @@ class NNTrainer(object):
     learn_rate = float(learn_rate)
 
     def costfn(weights):
-      """ The cost function created by createCostfn.
+      """ The cost function created which calculates the cost of using a particular list of weights.
 
-      Uses the weights passed to createCostfn to calculate the cost and the gradient given a list
-      of weights. The weights should be correctly shaped. The cost function depends on the error
-      function provided and uses regularization. How much regularization is used can be tuned with
-      the learning rate (lambda).
+      Uses the parameters passed to createCostfn to calculate the cost and the gradient given a list
+      of weights. The weights should be correctly shaped.
 
+      The cost is calculated by running forward propogation on the neural network and calculating
+      the error between the output and the expected values. The gradient of the cost is calculated
+      using backpropogation, utilizing the grad function in each of the activation functions and the
+      error function. The cost function utilizes regularization which can be tuned by the learn_rate
+      parameter in createCostfn.
+
+      The cost function depends on all the inputs passed to createCostfn, so tweaking the parameters
+      to createCostfn will change the behavior of the cost function.
+
+      Arguments:
+      weights -- A list of weights
       Returns:
       The cost and, if computeGrad is True, the gradient of the neural network.
       """
@@ -124,7 +128,8 @@ class NNTrainer(object):
         else:
           return cost
       except ValueError:
-        print "Calculating cost of a neural network failed. Most likely due to dimension mismatch."
+        print "NNTrainer: Calculating cost of a neural network failed. \
+          Most likely due to dimension mismatch."
         raise
     return costfn
 
@@ -154,14 +159,14 @@ class NNTrainer(object):
         curr_index += size
       return weights
     except ValueError:
-      print "Reshaping weights failed. Most likely due to incorrect size of unrolled_weights."
+      print "NNTrainer: Reshaping weights failed. \
+        Most likely due to incorrect size of unrolled_weights."
       raise
 
   def unrollWeights(self, weights):
     """ Unrolls a list of weights into a column vector.
 
-    Presumes that a list of weights of the proper dimensions are passed. Does not copy the passed
-    weights.
+    Does not copy the passed weights.
 
     Returns:
     A column vector representing the unrolled weight vector.
