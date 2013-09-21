@@ -13,10 +13,40 @@ class NNTrainer(object):
   def __init__(self, nn):
     self.nn = nn
 
-  def train(self, X, y, learn_rate, errorfn, iterations = 50, disp = False):
+  def train(self, X, y, learn_rate, errorfn, minimizer):
+    """ Trains the neural network using the passed parameters.
+
+    This method will train a neural network based on several parameters which will be used to setup
+    the cost function. It will attempt to train the neural network by minimizing the cost function
+    using the specified minimizer.
+
+    A minimizer should be a function that takes two arguments:
+    1) A function to minimize - This function will take a numpy.array of arguments and output the
+      value of the function as well as the gradient of the function.
+    2) The initial input values - A initial array of values to start the minimization process.
+
+    The minimizer will be passed these arguments within this method, and is expected to return a
+    results object that contains:
+    1) success (bool) - whether the minimization was successful
+    2) x (array) - the final minimized coordinate as a numpy.array
+
+    The minimizer follows the standard in scipy.optimize, so it is expected that an minimization
+    function be chosen from that package.
+
+    Arguments:
+    X -- The featureset with each column representing a feature vector for one training example.
+    y -- The output vector with each column representing the output vector for one training example.
+    learn_rate -- The learning rate for regularization
+    errorfn -- Error function used when computing cost
+    minimizer -- A minimization function
+    Returns:
+    The result object returned from minimizer
+    """
     costfn = self.createCostfn(X, y, learn_rate, errorfn)
     def flattenedCostfn(weights):
-      """ Wrapper function that flattens inputs to pass to a scipy optimization function
+      """ Wrapper function that flattens inputs to pass to a minimizer.
+
+      Will return the gradient as a unrolled numpy.array.
 
       Arguments:
       weights -- a row vector of weights
@@ -26,19 +56,13 @@ class NNTrainer(object):
       cost, grad = costfn(self.reshapeWeights(np.matrix(weights)))
       return cost, np.array(self.unrollWeights(grad).T)[0]
 
-    unrolled_weights_array = np.array(self.unrollWeights(self.nn.weights).T)[0]
-
-    result = minimize(flattenedCostfn, unrolled_weights_array,
-      method='BFGS',
-      options = {'maxiter' :iterations, 'disp':disp},
-      jac =True)
+    initial_weights = np.array(self.unrollWeights(self.nn.weights).T)[0]
+    result = minimizer(flattenedCostfn, initial_weights)
 
     if result.success:
-      min_weights = self.reshapeWeights(np.matrix(result.x).T)
+      min_weights = self.reshapeWeights(np.matrix(result.x))
       self.nn.weights = min_weights
-      return min_weights
-    else:
-      return None
+    return result
 
   def createCostfn(self, X, y, learn_rate, errorfn, computeGrad=True):
     """ Creates a cost function given a set of input data and other parameters.
@@ -137,7 +161,8 @@ class NNTrainer(object):
     """ Reshapes an unrolled column or row vector of weights into the proper sizes.
 
     Assumes that the correct number of weights are passed, and uses the neural network's weight
-    shapes and sizes to determine how to reshape the unrolled weights.
+    shapes and sizes to determine how to reshape the unrolled weights. Will return a view of the
+    original column or row vector.
 
     Arguments:
     unrolled_weights -- A column or row vector of unrolled weights
@@ -153,7 +178,7 @@ class NNTrainer(object):
       for weight in self.nn.weights:
         shape = weight.shape
         size = weight.size
-        unrolled = np.matrix(unrolled_weights[curr_index:curr_index + size])
+        unrolled = unrolled_weights[curr_index:curr_index + size]
         weight = unrolled.reshape(shape)
         weights.append(weight)
         curr_index += size
@@ -166,7 +191,7 @@ class NNTrainer(object):
   def unrollWeights(self, weights):
     """ Unrolls a list of weights into a column vector.
 
-    Does not copy the passed weights.
+    Does not return a view of the original weights, makes a copy.
 
     Returns:
     A column vector representing the unrolled weight vector.
