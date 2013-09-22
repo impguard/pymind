@@ -13,7 +13,7 @@ class NNTrainer(object):
   def __init__(self, nn):
     self.nn = nn
 
-  def train(self, X, y, learn_rate, errorfn, minimizer):
+  def train(self, X, y, learn_rate, errorfn, minimizer, iterations = 10):
     """ Trains the neural network using the passed parameters.
 
     This method will train a neural network based on several parameters which will be used to setup
@@ -39,6 +39,8 @@ class NNTrainer(object):
     learn_rate -- The learning rate for regularization
     errorfn -- Error function used when computing cost
     minimizer -- A minimization function
+    iterations -- Number of times to attempt to minimize the cost with different starting weights;
+      the weights and the result with the lowest cost will be picked (Default: 10)
     Returns:
     The result object returned from minimizer
     """
@@ -113,7 +115,7 @@ class NNTrainer(object):
         bias = 1 if self.nn.bias else 0
 
         # Part 1: Feed forward and get cost
-        z, a = self.nn.feed_forward(X)
+        z, a = self.nn.feedForward(X)
         h = a[-1] # Hypothesis
         err_vector = errorfn.calc(h, y)
         unreg_cost = (1. / m) * err_vector.sum() # Unregularized cost

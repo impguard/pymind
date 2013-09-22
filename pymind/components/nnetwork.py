@@ -55,13 +55,20 @@ class NeuralNetwork(object):
       num_output = self.layers[i+1].num_input
       self.weights.append(initRandParams(num_input, num_output))
 
-  # Helper method for initialization
+  # Helper methods for initialization
   def addLayer(self, units, activationfn_index):
     new_layer = NNLayer(units, self.activationfn[activationfn_index])
     self.layers.append(new_layer)
 
+  @classmethod
+  def initRandParams(num_input, num_output):
+    eps_init = np.sqrt(6) / np.sqrt(num_input + num_output)
+    return np.matrix(np.random.rand(num_output, num_input) * 2 * eps_init - eps_init)
+
   # Useful methods for using a NeuralNetwork
-  def feed_forward(self, x):
+  def resetWeights
+
+  def feedForward(self, x):
     """ Runs the feed forward process with this neural network.
 
     This function takes in the input vector x and runs the feed forward process. However, x must be

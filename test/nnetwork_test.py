@@ -6,6 +6,11 @@ from pymind.activationfn import *
 def setWeight(network, index, weight):
   network.weights[index] = weight
 
+def testInitRandParams1():
+  params = NeuralNetwork.initRandParams(3, 3)
+  assert params.shape == (3, 3), \
+    "The shape of the parameter matrix generated for 3 inputs and 3 outputs should be (3, 3)."
+
 def testNNetworkConstruction1():
   """ Test construction of a neural network with a single hidden layer. """
   params = {
@@ -66,7 +71,7 @@ def testForwardProp1():
   setWeight(nnet, 1, weight1)
 
   x = np.matrix([1, 1]).T
-  z, a = nnet.feed_forward(x)
+  z, a = nnet.feedForward(x)
 
   np.testing.assert_array_equal(a[1], np.matrix([1, 3, 3]).T,
     err_msg = "The hidden layer activation values should be a column vector with elements 1, 3, 3: %r" % a[1])
@@ -97,7 +102,7 @@ def testForwardProp2():
   # Feed forward
   x = np.matrix(np.ones(6)).reshape(3, 2)
   x[:, 1] = 2
-  z, a = nnet.feed_forward(x)
+  z, a = nnet.feedForward(x)
 
   # Create actual result (pre-calculated)
   z_test = list()
@@ -140,7 +145,7 @@ def testForwardProp3():
   x = np.matrix(np.sin(np.arange(5))).reshape(5, 1)
 
   # Feed forward
-  z, a = nnet.feed_forward(x)
+  z, a = nnet.feedForward(x)
 
   # Create actual result (pre-calculated)
   zt = list()

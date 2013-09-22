@@ -257,7 +257,7 @@ def testOR():
   for i in range(4):
     x = X[:, i]
     exp = y[:, i]
-    z, a = nnet.feed_forward(x)
+    z, a = nnet.feedForward(x)
     h = a[-1]
     h = np.where(h > 0.01, np.ones(h.shape), h)
     h = np.where(h < 0.99, np.zeros(h.shape), h)
@@ -296,7 +296,7 @@ def testAND():
   for i in range(4):
     x = X[:, i]
     exp = y[:, i]
-    z, a = nnet.feed_forward(x)
+    z, a = nnet.feedForward(x)
     h = a[-1]
     h = np.where(h > 0.01, np.ones(h.shape), h)
     h = np.where(h < 0.99, np.zeros(h.shape), h)
