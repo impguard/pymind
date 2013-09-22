@@ -6,11 +6,6 @@ from pymind.activationfn import *
 def setWeight(network, index, weight):
   network.weights[index] = weight
 
-def testInitRandParams1():
-  params = NeuralNetwork.initRandParams(3, 3)
-  assert params.shape == (3, 3), \
-    "The shape of the parameter matrix generated for 3 inputs and 3 outputs should be (3, 3)."
-
 def testNNetworkConstruction1():
   """ Test construction of a neural network with a single hidden layer. """
   params = {

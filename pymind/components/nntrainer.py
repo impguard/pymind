@@ -29,6 +29,7 @@ class NNTrainer(object):
     results object that contains:
     1) success (bool) - whether the minimization was successful
     2) x (array) - the final minimized coordinate as a numpy.array
+    3) fun (float) - the final minimized value of the function
 
     The minimizer follows the standard in scipy.optimize, so it is expected that an minimization
     function be chosen from that package.
@@ -58,13 +59,21 @@ class NNTrainer(object):
       cost, grad = costfn(self.reshapeWeights(np.matrix(weights)))
       return cost, np.array(self.unrollWeights(grad).T)[0]
 
-    initial_weights = np.array(self.unrollWeights(self.nn.weights).T)[0]
-    result = minimizer(flattenedCostfn, initial_weights)
+    best_result = None
+    min_error = float('infinity')
+    for i in range(iterations):
+      self.nn.resetWeights()
+      initial_weights = np.array(self.unrollWeights(self.nn.weights).T)[0]
+      result = minimizer(flattenedCostfn, initial_weights)
+      if result.success and result.fun < min_error:
+        best_result = result
+        min_error = result.fun
 
-    if result.success:
-      min_weights = self.reshapeWeights(np.matrix(result.x))
+    if best_result is not None:
+      min_weights = self.reshapeWeights(np.matrix(best_result.x))
       self.nn.weights = min_weights
-    return result
+
+    return best_result
 
   def createCostfn(self, X, y, learn_rate, errorfn, computeGrad=True):
     """ Creates a cost function given a set of input data and other parameters.

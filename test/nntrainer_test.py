@@ -226,6 +226,7 @@ def testUnrollReshapeWeights():
         same weight in the neural network." % i)
 
 def testOR():
+  """ Tests if trainer can train OR function. """
   params = {
     "input_units": 2,
     "output_units": 1,
@@ -239,32 +240,20 @@ def testOR():
                  [0,1,0,1]])
   y = np.matrix([[0,1,1,1]])
 
-  minimizer = createMinimizer(iterations = 50, display = False)
+  minimizer = createMinimizer(iterations = 25, display = False)
 
   # Run 10 times and pick result with lowest error
-  min_error = float('infinity')
-  weights = None
-  for i in range(10):
-    result = trainer.train(X, y, 0, logitError, minimizer)
-    if result.fun < min_error:
-      min_error = result.fun
-      weights = result.x
+  result = trainer.train(X, y, 0.0001, logitError, minimizer)
 
-  # HACKHACK should be a easy way to set weights for a nnetwork
-  weights = trainer.reshapeWeights(np.matrix(weights))
-  nnet.weights = weights
+  z, a = nnet.feedForward(X)
+  h = a[-1]
+  h = np.where(h > 0.99, np.ones(h.shape), h)
+  h = np.where(h < 0.01, np.zeros(h.shape), h)
 
-  for i in range(4):
-    x = X[:, i]
-    exp = y[:, i]
-    z, a = nnet.feedForward(x)
-    h = a[-1]
-    h = np.where(h > 0.01, np.ones(h.shape), h)
-    h = np.where(h < 0.99, np.zeros(h.shape), h)
-    np.testing.assert_array_equal(h, exp,
-      err_msg = "Learning OR: %d or %d is not %d." % (x[0, 0], x[1, 0], h[0, 0]))
+  np.testing.assert_array_equal(h, y, err_msg = "Learning OR failed")
 
 def testAND():
+  """ Tests if trainer can train AND function. """
   params = {
     "input_units": 2,
     "output_units": 1,
@@ -278,28 +267,125 @@ def testAND():
                  [0,1,0,1]])
   y = np.matrix([[0,0,0,1]])
 
-  minimizer = createMinimizer(iterations = 50, display = False)
+  minimizer = createMinimizer(iterations = 25, display = False)
 
   # Run 10 times and pick result with lowest error
-  min_error = float('infinity')
-  weights = None
-  for i in range(10):
-    result = trainer.train(X, y, 0, logitError, minimizer)
-    if result.fun < min_error:
-      min_error = result.fun
-      weights = result.x
+  result = trainer.train(X, y, 0.0001, logitError, minimizer)
 
-  # HACKHACK should be a easy way to set weights for a nnetwork
-  weights = trainer.reshapeWeights(np.matrix(weights))
-  nnet.weights = weights
+  z, a = nnet.feedForward(X)
+  h = a[-1]
+  h = np.where(h > 0.99, np.ones(h.shape), h)
+  h = np.where(h < 0.01, np.zeros(h.shape), h)
 
-  for i in range(4):
-    x = X[:, i]
-    exp = y[:, i]
-    z, a = nnet.feedForward(x)
-    h = a[-1]
-    h = np.where(h > 0.01, np.ones(h.shape), h)
-    h = np.where(h < 0.99, np.zeros(h.shape), h)
-    np.testing.assert_array_equal(h, exp,
-      err_msg = "Learning OR: %d or %d is not %d." % (x[0, 0], x[1, 0], h[0, 0]))
+  np.testing.assert_array_equal(h, y, err_msg = "Learning AND failed")
 
+def testNAND():
+  """ Tests if trainer can train NAND function. """
+  params = {
+    "input_units": 2,
+    "output_units": 1,
+    "activationfn": [identity, sigmoid],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+  trainer = NNTrainer(nnet)
+
+  X = np.matrix([[0,0,1,1],
+                 [0,1,0,1]])
+  y = np.matrix([[1,0,0,0]])
+
+  minimizer = createMinimizer(iterations = 25, display = False)
+
+  # Run 10 times and pick result with lowest error
+  result = trainer.train(X, y, 0.0001, logitError, minimizer)
+
+  z, a = nnet.feedForward(X)
+  h = a[-1]
+  h = np.where(h > 0.99, np.ones(h.shape), h)
+  h = np.where(h < 0.01, np.zeros(h.shape), h)
+
+  np.testing.assert_array_equal(h, y, err_msg = "Learning NAND failed")
+
+def testXOR():
+  """ Tests if trainer can train XOR function. """
+  params = {
+    "input_units": 2,
+    "hidden_units": 2,
+    "output_units": 1,
+    "activationfn": [identity, sigmoid, sigmoid],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+  trainer = NNTrainer(nnet)
+
+  X = np.matrix([[0,0,1,1],
+                 [0,1,0,1]])
+  y = np.matrix([[1,0,0,1]])
+
+  minimizer = createMinimizer(iterations = 100, display = False)
+
+  # Run 10 times and pick result with lowest error
+  result = trainer.train(X, y, 0.001, logitError, minimizer)
+
+  z, a = nnet.feedForward(X)
+  h = a[-1]
+  h = np.where(h > 0.9, np.ones(h.shape), h)
+  h = np.where(h < 0.1, np.zeros(h.shape), h)
+
+  np.testing.assert_array_equal(h, y, err_msg = "Learning XOR failed")
+
+def testPolynomial1():
+  """ Tests if trainer can train degree 3 polynomial. """
+  params = {
+    "input_units": 3,
+    "output_units": 1,
+    "activationfn": [identity, identity],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+  trainer = NNTrainer(nnet)
+
+  polynomial = lambda x: 1 + 3 * x - np.power(x, 2) + np.power(x, 3)
+
+  row_X = np.matrix(np.arange(50))
+  X = np.vstack((row_X, np.power(row_X, 2), np.power(row_X, 3)))
+  y = polynomial(row_X)
+
+  minimizer = createMinimizer(iterations = 50, display = True)
+
+  # Run 10 times and pick result with lowest error
+  result = trainer.train(X, y, 0, squaredError, minimizer, iterations = 5)
+
+  z, a = nnet.feedForward(X)
+  h = a[-1]
+
+  check = np.where(np.abs(h - y) > 1, np.ones(h.shape), np.zeros(h.shape))
+  np.testing.assert_array_equal(check, np.zeros(h.shape), err_msg = "Learning polynomial2 failed")
+
+def testPolynomial2():
+  """ Tests if trainer can train degree 3 polynomial using regularization. """
+  params = {
+    "input_units": 4,
+    "output_units": 1,
+    "activationfn": [identity, identity],
+    "bias": True
+  }
+  nnet = NeuralNetwork(params)
+  trainer = NNTrainer(nnet)
+
+  polynomial = lambda x: 1 + 3 * x - np.power(x, 2) + np.power(x, 3)
+
+  row_X = np.matrix(np.arange(50))
+  X = np.vstack((row_X, np.power(row_X, 2), np.power(row_X, 3), np.power(row_X, 4)))
+  y = polynomial(row_X)
+
+  minimizer = createMinimizer(iterations = 50, display = True)
+
+  # Run 10 times and pick result with lowest error
+  result = trainer.train(X, y, 0.001, squaredError, minimizer, iterations = 1)
+
+  z, a = nnet.feedForward(X)
+  h = a[-1]
+
+  check = np.where(np.abs(h - y) > 1, np.ones(h.shape), np.zeros(h.shape))
+  np.testing.assert_array_equal(check, np.zeros(h.shape), err_msg = "Learning polynomial2 failed")

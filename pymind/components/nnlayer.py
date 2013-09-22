@@ -1,5 +1,4 @@
 import numpy as np
-from ..util import initRandParams
 
 class NNLayer(object):
   def __init__(self, num_input, activationfn):

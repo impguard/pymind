@@ -53,4 +53,4 @@ class identity(_activationfn):
 
   @classmethod
   def _grad(cls, v):
-    return v
+    return 1
