@@ -13,6 +13,9 @@ Thumbs.db
 # Ignore build files #
 ######################
 *.pyc
+cover
+cover/*
+.coverage
 
 # Ignore VirtualEnv #
 #####################
