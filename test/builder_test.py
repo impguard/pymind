@@ -245,3 +245,67 @@ def testBuilderBuild():
   assert nnetwork.output_units == params["output_units"], "Output units didn't match."
   assert nnetwork.activationfn == params["activationfn"], "Activation functions didn't match."
   assert nnetwork.bias == params['bias'], "Bias didn't match."
+
+def testBuilderAddActivationFn1():
+  """ Test adding user's own activation functions."""
+  b = Builder()
+  class linear(identity):
+    @classmethod
+    def _calc(cls, v):
+      return v
+    @classmethod
+    def _grad(cls, v):
+     raise 1
+  class quadratic(identity):
+    @classmethod
+    def _calc(cls, v):
+      return v*v
+    @classmethod
+    def _grad(cls, v):
+     raise 2*v
+  name2fn = {"linear": linear, "quadratic": quadratic}
+  b.addActivationFunctions(name2fn)
+
+  exp = {"identity": identity, "sigmoid": sigmoid, "linear": linear, "quadratic": quadratic}
+  assert b.name2fn == exp, "Dictionary of activation functions did not match."
+
+def testBuilderAddActivationFn2():
+  """ Test adding user's own activation functions."""
+  b = Builder()
+  class linear(identity):
+    @classmethod
+    def _calc(cls, v):
+      return v
+    @classmethod
+    def _grad(cls, v):
+     raise 1
+  np.testing.assert_raises(TypeError, b.addActivationFunctions, {1:linear})
+
+def testBuilderSetDefaultfn():
+  """ Test the setter for default activation function."""
+  b = Builder()
+  class linear(identity):
+    @classmethod
+    def _calc(cls, v):
+      return v
+    @classmethod
+    def _grad(cls, v):
+     raise 1
+  class quadratic(identity):
+    @classmethod
+    def _calc(cls, v):
+      return v*v
+    @classmethod
+    def _grad(cls, v):
+     raise 2*v
+  name2fn = {"linear": linear, "quadratic": quadratic}
+  b.addActivationFunctions(name2fn)
+
+  b.setDefaultfn("linear")
+  assert b.defaultfn == "linear", "The default activation function should be %s, not %s" % ("linear", b.defaultfn)
+
+  b.setDefaultfn("identity")
+  assert b.defaultfn == "identity", "The default activation function should be %s, not %s" % ("identity", b.defaultfn)
+
+  np.testing.assert_raises(TypeError, b.setDefaultfn, 10)
+  np.testing.assert_raises(ValueError, b.setDefaultfn, "Cubic") 

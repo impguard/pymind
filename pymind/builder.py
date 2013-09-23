@@ -30,6 +30,44 @@ class Builder(object):
     self.bias = bias
     return self
 
+  def setDefaultfn(self, activationfnName):
+    """ Change the default activation function used by the Builder. Must be an activation function name accepted by this particular Builder.
+
+    Arguments:
+    activationfnName (string): The name for the new default activation function. Must be a key in activationfnNames().
+
+    Returns:
+    The Builder object itself.
+    """
+    if type(activationfnName) is not str:
+      # Raise exception if the activation function name is not a string representing the name of an activation function
+      raise TypeError("The name of the activation function should be a string.")
+
+    if activationfnName not in self.activationfnNames():
+      # Raise exception if the activation function name is not in the set of acceptable names of this Builder
+     raise ValueError("The name '" + str(activationfnName) + "' does not match any valid activation function. This Builder object has the following valid activation function names: " + str(self.activationfnNames()))
+    self.defaultfn = activationfnName
+    return self
+
+  def addActivationFunctions(self, name2fn):
+    """ Add new activation functions to be used by the NeuralNetwork constructed by the Builder.
+
+    Arguments:
+    name2fn {name:function}: A dictionary with keys being function names (String) and the values being the activation function (Class object).
+
+    Returns:
+    The Builder object itself.
+    """
+    if type(name2fn) is not dict:
+      # Must be a dictionary
+      raise TypeError("addActivationFunctions() only accept dictionary as argument.")
+    for name in name2fn.keys():
+      if type(name) is not str:
+        # Function name must be a string
+        raise TypeError("Function name must be a string.")
+    self.name2fn.update(name2fn)
+    return self
+
   def setInputLayer(self, input_units=None, activationfnName=None):
     """ Set the number of input layer units (and/or activation fucntion) of the input layer.
 
