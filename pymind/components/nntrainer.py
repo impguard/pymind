@@ -2,7 +2,6 @@ import numpy as np
 from nnetwork import NeuralNetwork
 from nnlayer import NNLayer
 from collections import deque
-from scipy.optimize import minimize
 
 class NNTrainer(object):
   """ A NNTrainer takes a neural network and trains it given a training dataset.

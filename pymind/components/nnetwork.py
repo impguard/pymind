@@ -52,7 +52,7 @@ class NeuralNetwork(object):
     new_layer = NNLayer(units, self.activationfn[activationfn_index])
     self.layers.append(new_layer)
 
-  def initRandParams(self, num_input, num_output):
+  def initRandWeights(self, num_input, num_output):
     eps_init = np.sqrt(6) / np.sqrt(num_input + num_output)
     return np.matrix(np.random.rand(num_output, num_input) * 2 * eps_init - eps_init)
 
@@ -63,7 +63,7 @@ class NeuralNetwork(object):
     for i in range(len(self.layers) - 1):
       num_input = self.layers[i].num_input + bias
       num_output = self.layers[i+1].num_input
-      self.weights.append(self.initRandParams(num_input, num_output))
+      self.weights.append(self.initRandWeights(num_input, num_output))
 
   def feedForward(self, x):
     """ Runs the feed forward process with this neural network.
