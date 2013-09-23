@@ -33,7 +33,7 @@ class NeuralNetwork(object):
 
     # ----- Create layers ----- #
     self.layers = list()
-    fn_count = range(len(self.activationfn)).__iter__()
+    fn_count = xrange(len(self.activationfn)).__iter__()
 
     # Input layer
     self.addLayer(self.input_units, fn_count.next())
@@ -48,7 +48,7 @@ class NeuralNetwork(object):
     # ----- Create network weights ----- #
     self.weights = list()
     bias = 1 if self.bias else 0
-    for i in range(len(self.layers)):
+    for i in xrange(len(self.layers)):
       if i == len(self.layers) - 1:
         break;
       num_input = self.layers[i].num_input + bias
@@ -82,7 +82,7 @@ class NeuralNetwork(object):
       a = list()
       weights = self.weights.__iter__()
 
-      for i in range(len(self.layers)):
+      for i in xrange(len(self.layers)):
         layer = self.layers[i]
         isOutput = i == len(self.layers) - 1
         # Activation Step

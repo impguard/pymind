@@ -36,7 +36,7 @@ def computeNumericalGradient(fn, x, e = 1e-4):
   """
   numGrad = np.matrix(np.zeros(x.shape))
   perturb = np.matrix(np.zeros(x.shape))
-  for i in range(numGrad.size):
+  for i in xrange(numGrad.size):
     perturb[i] = e
     pos = fn(x + perturb)
     neg = fn(x - perturb)
@@ -206,7 +206,7 @@ def testUnrollReshapeWeights():
   unrolledWeights = trainer.unrollWeights(nnet.weights)
   reshapedWeights = trainer.reshapeWeights(unrolledWeights)
 
-  for i in range(len(reshapedWeights)):
+  for i in xrange(len(reshapedWeights)):
     np.testing.assert_array_equal(reshapedWeights[i], nnet.weights[i],
       err_msg = "The reshapedWeight at index %d is not the same as the \
       same weight in the neural network." % i)

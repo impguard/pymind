@@ -112,7 +112,7 @@ def testForwardProp2():
   z_test.append(np.matrix([6.9281, 6.9964]))
   a_test.append(np.matrix([0.99902, 0.99909]))
 
-  for i in range(len(z_test)):
+  for i in xrange(len(z_test)):
     np.testing.assert_array_almost_equal(z_test[i], z[i], decimal = 4,
       err_msg = "The output z at index %d is incorrect" % i)
     np.testing.assert_array_almost_equal(a_test[i], a[i], decimal = 4,
@@ -158,7 +158,7 @@ def testForwardProp3():
 
   # Comparison!
 
-  for i in range(len(z)):
+  for i in xrange(len(z)):
     np.testing.assert_array_almost_equal(z[i], zt[i], decimal=10,
       err_msg = "The output z at index %d is incorrect" % i)
     np.testing.assert_array_almost_equal(a[i], at[i], decimal = 10,

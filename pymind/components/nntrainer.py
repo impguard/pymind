@@ -93,7 +93,7 @@ class NNTrainer(object):
           # Calculate deltas
           d.appendleft(np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]), errorfn.grad(h, y)))
 
-          for i in range(len(self.nn.layers) - 2, 0, -1):
+          for i in xrange(len(self.nn.layers) - 2, 0, -1):
             prevD = d[0]
             activationfn = self.nn.layers[i].activationfn
             weight = weights[i]
@@ -103,7 +103,7 @@ class NNTrainer(object):
 
           # Calculate gradients
           grads = list()
-          for i in range(len(self.nn.weights)):
+          for i in xrange(len(self.nn.weights)):
             # Unregularized gradient
             unreg_grad = (1. / m) * d[i+1] * a[i].T
             # Regularized gradient excluding bias
