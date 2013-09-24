@@ -1,6 +1,5 @@
 import numpy as np
 from nnlayer import NNLayer
-from ..util import initRandParams
 
 class NeuralNetwork(object):
   """ Create a neural network by passing in a dictionary of parameters.
@@ -46,22 +45,27 @@ class NeuralNetwork(object):
     self.addLayer(self.output_units, fn_count.next())
 
     # ----- Create network weights ----- #
-    self.weights = list()
-    bias = 1 if self.bias else 0
-    for i in xrange(len(self.layers)):
-      if i == len(self.layers) - 1:
-        break;
-      num_input = self.layers[i].num_input + bias
-      num_output = self.layers[i+1].num_input
-      self.weights.append(initRandParams(num_input, num_output))
+    self.resetWeights()
 
-  # Helper method for initialization
+  # Helper methods for initialization
   def addLayer(self, units, activationfn_index):
     new_layer = NNLayer(units, self.activationfn[activationfn_index])
     self.layers.append(new_layer)
 
+  def initRandWeights(self, num_input, num_output):
+    eps_init = np.sqrt(6) / np.sqrt(num_input + num_output)
+    return np.matrix(np.random.rand(num_output, num_input) * 2 * eps_init - eps_init)
+
   # Useful methods for using a NeuralNetwork
-  def feed_forward(self, x):
+  def resetWeights(self):
+    self.weights = list()
+    bias = 1 if self.bias else 0
+    for i in xrange(len(self.layers) - 1):
+      num_input = self.layers[i].num_input + bias
+      num_output = self.layers[i+1].num_input
+      self.weights.append(self.initRandWeights(num_input, num_output))
+
+  def feedForward(self, x):
     """ Runs the feed forward process with this neural network.
 
     This function takes in the input vector x and runs the feed forward process. However, x must be
