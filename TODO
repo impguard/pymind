@@ -1,0 +1,17 @@
+Goals
+=====
+
+Easily split data into parts
+Easily create a builder that acts as a NN generator
+Easily run CV tests on a NN or on several NN (through a generator)
+- So we can easily say, test learn_rate between 0 to 100 with a step size of 1
+  and and...(1) print out minimums, pick the best (2) print all results
+- Should be able to do generator customizing anything we want, pass in a generator?
+  (with common ones already made?)
+Visualize with quick and dirty graphs that do common tasks (identify intersections etc.)
+
+Easy to customize how pymind works (pluginnable)
+
+Questions
+========
+Is a front end required or can everything just be a component?
