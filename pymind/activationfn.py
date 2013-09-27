@@ -4,14 +4,26 @@ An activation function is a static object that has two generalized class methods
 activation function takes one argument and returns either the activation if calc is called or the
 gradient of the activation function if grad is called.
 
-Any sublcass of an activation function can implement the methods _calc and _grad to perform a
-specific activation function on the passed argument.
+Any subclass of an activation function can implement the methods _calc and _grad to perform a
+specific activation function on the passed argument. Add the subclass to the activationfn module
+using the built in function add with an associated name. This function will be accessable anywhere
+using the built in function get anywhere within pymind.
 
-The activation function always transforms any input into a numpy matrix and performs element-wise
-operations.
+The activation function should always transform any input into a numpy matrix and perform
+element-wise operations.
 """
 
 import numpy as np
+from util import assertType
+
+fn_list = dict()
+def get(name):
+  assertType("activationfn.get", "name", name, str)
+  return fn_list[name]
+
+def add(name, fn):
+  assertType("activationfn.add", "name", name, str)
+  fn_list[name] = fn
 
 class _activationfn(object):
   @classmethod
@@ -54,3 +66,6 @@ class identity(_activationfn):
   @classmethod
   def _grad(cls, v):
     return 1
+
+add("sigmoid", sigmoid)
+add("identity", identity)
