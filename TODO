@@ -10,7 +10,7 @@ Easily run CV tests on a NN or on several NN (through a generator)
   (with common ones already made?)
 Visualize with quick and dirty graphs that do common tasks (identify intersections etc.)
 
-Easy to customize how pymind works (pluginnable)
+X Easy to customize how pymind works (pluginnable)
 
 Questions
 ========
