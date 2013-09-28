@@ -26,6 +26,10 @@ def add(name, fn):
   assertType("errfn.add", "name", name, str)
   fn_list[name] = fn
 
+def contains(name):
+  assertType("errfn.contains", "name", name, str)
+  return name in fn_list
+
 class _errfn(object):
   """ Abstract factory base class for any generalized error function."""
   @classmethod

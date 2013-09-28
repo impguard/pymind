@@ -8,6 +8,8 @@ def testGetPlugin1():
     "squaredError should be automatically added to activationfn."
   assert ef.get("logitError") is logitError, \
     "logitError should be automatically added to activationfn."
+  assert ef.contains("squaredError"), "errfn.contains('squaredError') should return True."
+  assert ef.contains("logitError"), "errfn.contains('logitError') should return True."
 
 def testAddPlugin1():
   """ Test that activationfn can properly add functions. """
@@ -16,6 +18,8 @@ def testAddPlugin1():
 
   assert ef.get("random") is 1, "A function called random should be stored in activationfn."
   assert ef.get("another") is 2, "A function called another should be stored in activationfn."
+  assert ef.contains("random"), "errfn.contains('random') should return True."
+  assert ef.contains("another"), "errfn.contains('another') should return True."
 
 def testSquaredErrorCalc1():
   """ Testing squaredError.calc to 10 sig. digits. """
