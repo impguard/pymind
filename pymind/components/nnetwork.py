@@ -47,6 +47,9 @@ class NeuralNetwork(object):
     # ----- Create network weights ----- #
     self.resetWeights()
 
+    # ----- Create a list of weight dimensions ----- #
+    self.dimensions = [weight.shape for weight in self.weights]
+
   # Helper methods for initialization
   def addLayer(self, units, activationfn_index):
     new_layer = NNLayer(units, self.activationfn[activationfn_index])
