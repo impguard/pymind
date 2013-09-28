@@ -1,5 +1,21 @@
 import numpy as np
+import pymind.errfn as ef
 from pymind.errfn import squaredError, logitError
+
+def testGetPlugin1():
+  """ Test that activationfn can properly get functions. """
+  assert ef.get("squaredError") is squaredError, \
+    "squaredError should be automatically added to activationfn."
+  assert ef.get("logitError") is logitError, \
+    "logitError should be automatically added to activationfn."
+
+def testAddPlugin1():
+  """ Test that activationfn can properly add functions. """
+  ef.add("random", 1)
+  ef.add("another", 2)
+
+  assert ef.get("random") is 1, "A function called random should be stored in activationfn."
+  assert ef.get("another") is 2, "A function called another should be stored in activationfn."
 
 def testSquaredErrorCalc1():
   """ Testing squaredError.calc to 10 sig. digits. """

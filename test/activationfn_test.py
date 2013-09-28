@@ -1,5 +1,19 @@
 import numpy as np
-from pymind.activationfn import sigmoid
+import pymind.activationfn as af
+from pymind.activationfn import sigmoid, identity
+
+def testGetPlugin1():
+  """ Test that activationfn can properly get functions. """
+  assert af.get("sigmoid") is sigmoid, "Sigmoid should be automatically added to activationfn."
+  assert af.get("identity") is identity, "Identity should be automatically added to activationfn."
+
+def testAddPlugin1():
+  """ Test that activationfn can properly add functions. """
+  af.add("random", 1)
+  af.add("another", 2)
+
+  assert af.get("random") is 1, "A function called random should be stored in activationfn."
+  assert af.get("another") is 2, "A function called another should be stored in activationfn."
 
 def testSigmoidCalc1():
   """ Test that sigmoid.calc works to 10 sig. digits. """
