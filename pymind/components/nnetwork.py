@@ -2,20 +2,20 @@ import numpy as np
 from nnlayer import NNLayer
 
 class NeuralNetwork(object):
-  """ Create a neural network by passing in a dictionary of parameters.
-
-  The parameters that are passed in include:
-    input_units (number): number of input units
-    output_units (number): number of output units
-    hidden_units (number|list:number): number of hidden layer units; a list represents the number of hidden layer
-      units per hidden layer (which will be inferred from the number of elements in the list)
-    activationfn (list:function): a list of activation functions for each layer in the network; the number of
-      functions should equal the number layers inferred from the previous parameters
-    bias (bool): whether a bias unit should be introduced in each layer
-
-  Note: Only the hidden_units parameter is optional
-  """
   def __init__(self, params):
+    """ Create a neural network by passing in a dictionary of parameters.
+
+    The parameters that are passed in include:
+      input_units (number): number of input units
+      output_units (number): number of output units
+      hidden_units (number|list:number): number of hidden layer units; a list represents the number of hidden layer
+        units per hidden layer (which will be inferred from the number of elements in the list)
+      activationfn (list:function): a list of activation functions for each layer in the network; the number of
+        functions should equal the number layers inferred from the previous parameters
+      bias (bool): whether a bias unit should be introduced in each layer
+
+    Note: Only the hidden_units parameter is optional
+    """
     # ----- Initialize parameters ------ #
     if "hidden_units" not in params:
       self.hidden_units = []

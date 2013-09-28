@@ -5,13 +5,26 @@ function takes two arguments, namely the hypothesis and the expectation, and ret
 error if calc is called, or the gradient of the error function if grad is called.
 
 Any subclass of an error function can implement the methods _calc and _grad to perform a specific
-error function on the passed hypothesis and expected values.
+error function on the passed hypothesis and expected values. Add the subclass to the errfn module
+using the built in function add with an associated name. This function will be accessable anywhere
+using the built in function get anywhere within pymind.
 
 The error function always transforms any input into a numpy matrix and performs element-wise
 operations, so the dimensions of the hypothesis and the expectation should match.
 """
 
 import numpy as np
+from util import assertType
+
+fn_list = dict()
+def get(name):
+  assertType("errfn.get", "name", name, str)
+  assert name in fn_list, "(errfn) %s cannot be found." % name
+  return fn_list[name]
+
+def add(name, fn):
+  assertType("errfn.add", "name", name, str)
+  fn_list[name] = fn
 
 class _errfn(object):
   """ Abstract factory base class for any generalized error function."""
@@ -62,3 +75,6 @@ class logitError(_errfn):
   @classmethod
   def _grad(cls, h, y):
     return np.divide(h-y, np.multiply(h, 1-h))
+
+add("squaredError", squaredError)
+add("logitError", logitError)
