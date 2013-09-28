@@ -245,8 +245,7 @@ def testOR():
   # Run 10 times and pick result with lowest error
   result = trainer.train(X, y, 0.0001, logitError, minimizer)
 
-  z, a = nnet.feedForward(X)
-  h = a[-1]
+  h = nnet.activate(X)
   h = np.where(h > 0.99, np.ones(h.shape), h)
   h = np.where(h < 0.01, np.zeros(h.shape), h)
 
@@ -272,8 +271,7 @@ def testAND():
   # Run 10 times and pick result with lowest error
   result = trainer.train(X, y, 0.0001, logitError, minimizer)
 
-  z, a = nnet.feedForward(X)
-  h = a[-1]
+  h = nnet.activate(X)
   h = np.where(h > 0.99, np.ones(h.shape), h)
   h = np.where(h < 0.01, np.zeros(h.shape), h)
 
@@ -299,8 +297,7 @@ def testNAND():
   # Run 10 times and pick result with lowest error
   result = trainer.train(X, y, 0.0001, logitError, minimizer)
 
-  z, a = nnet.feedForward(X)
-  h = a[-1]
+  h = nnet.activate(X)
   h = np.where(h > 0.99, np.ones(h.shape), h)
   h = np.where(h < 0.01, np.zeros(h.shape), h)
 
@@ -327,8 +324,7 @@ def testXOR():
   # Run 10 times and pick result with lowest error
   result = trainer.train(X, y, 0.001, logitError, minimizer)
 
-  z, a = nnet.feedForward(X)
-  h = a[-1]
+  h = nnet.activate(X)
   h = np.where(h > 0.9, np.ones(h.shape), h)
   h = np.where(h < 0.1, np.zeros(h.shape), h)
 
@@ -356,8 +352,7 @@ def testPolynomial1():
   # Run 10 times and pick result with lowest error
   result = trainer.train(X, y, 0, squaredError, minimizer, iterations = 5)
 
-  z, a = nnet.feedForward(X)
-  h = a[-1]
+  h = nnet.activate(X)
 
   check = np.where(np.abs(h - y) > 1, np.ones(h.shape), np.zeros(h.shape))
   np.testing.assert_array_equal(check, np.zeros(h.shape), err_msg = "Learning polynomial2 failed")
@@ -384,8 +379,7 @@ def testPolynomial2():
   # Run 10 times and pick result with lowest error
   result = trainer.train(X, y, 0.001, squaredError, minimizer, iterations = 1)
 
-  z, a = nnet.feedForward(X)
-  h = a[-1]
+  h = nnet.activate(X)
 
   check = np.where(np.abs(h - y) > 1, np.ones(h.shape), np.zeros(h.shape))
   np.testing.assert_array_equal(check, np.zeros(h.shape), err_msg = "Learning polynomial2 failed")

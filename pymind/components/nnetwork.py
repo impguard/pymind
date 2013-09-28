@@ -56,7 +56,9 @@ class NeuralNetwork(object):
     eps_init = np.sqrt(6) / np.sqrt(num_input + num_output)
     return np.matrix(np.random.rand(num_output, num_input) * 2 * eps_init - eps_init)
 
-  # Useful methods for using a NeuralNetwork
+  # Internal methods for using a NeuralNetwork
+
+  # Front-end methods for using a NeuralNetwork
   def resetWeights(self):
     self.weights = list()
     bias = 1 if self.bias else 0
@@ -105,3 +107,19 @@ class NeuralNetwork(object):
     except ValueError:
       print "Feed forward process failed. Most likely due to matrix dimension mismatch."
       raise
+
+  def activate(self, x):
+    """ Runs the feed forward process with this neural network, but just returns the output.
+
+    This function takes in the input vector x and runs the feed forward process. However, it will
+    only return the output of the neural network. Use feedForward if the outputs of every layer in
+    the neural network in desired.
+
+    Arguments:
+    x -- A column vector with dimensions (self.input_units x 1)
+    Returns:
+    The output vector as a column vector with dimensions (self.output_units x 1)
+    """
+
+    z, a = self.feedForward(x)
+    return a[-1]
