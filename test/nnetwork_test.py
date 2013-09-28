@@ -67,11 +67,14 @@ def testForwardProp1():
 
   x = np.matrix([1, 1]).T
   z, a = nnet.feedForward(x)
+  h = nnet.activate(x)
 
   np.testing.assert_array_equal(a[1], np.matrix([1, 3, 3]).T,
     err_msg = "The hidden layer activation values should be a column vector with elements 1, 3, 3: %r" % a[1])
   assert a[2].size == 1, "The output should be a one element matrix: %r" % a[2].size
   assert a[2].item(0) == 7, "The output value should be 7: %d" % a[2].item(0)
+  np.testing.assert_array_equal(a[-1], h,
+    err_msg = "The output from feedForward should be the same as from activate.")
 
 def testForwardProp2():
   """ Test forward propogation for a complex neural network. """
@@ -98,6 +101,7 @@ def testForwardProp2():
   x = np.matrix(np.ones(6)).reshape(3, 2)
   x[:, 1] = 2
   z, a = nnet.feedForward(x)
+  h = nnet.activate(x)
 
   # Create actual result (pre-calculated)
   z_test = list()
@@ -117,6 +121,9 @@ def testForwardProp2():
       err_msg = "The output z at index %d is incorrect" % i)
     np.testing.assert_array_almost_equal(a_test[i], a[i], decimal = 4,
       err_msg = "The output a at index %d is incorrect" % i)
+
+  np.testing.assert_array_equal(a[-1], h,
+    err_msg = "The output from feedForward should be the same as from activate.")
 
 def testForwardProp3():
   """ Test forward propogation for high accuracy. """
@@ -141,6 +148,7 @@ def testForwardProp3():
 
   # Feed forward
   z, a = nnet.feedForward(x)
+  h = nnet.activate(x)
 
   # Create actual result (pre-calculated)
   zt = list()
@@ -163,4 +171,7 @@ def testForwardProp3():
       err_msg = "The output z at index %d is incorrect" % i)
     np.testing.assert_array_almost_equal(a[i], at[i], decimal = 10,
       err_msg = "The output a at index %d is incorrect" % i)
+
+  np.testing.assert_array_equal(a[-1], h,
+    err_msg = "The output from feedForward should be the same as from activate.")
 

@@ -12,7 +12,7 @@ class NNTrainer(object):
   def __init__(self, nn):
     self.nn = nn
 
-  def train(self, X, y, learn_rate, errorfn, minimizer, iterations = 10):
+  def train(self, X, y, learn_rate, errfn, minimizer, iterations = 10):
     """ Trains the neural network using the passed parameters.
 
     This method will train a neural network based on several parameters which will be used to setup
@@ -37,14 +37,14 @@ class NNTrainer(object):
     X -- The featureset with each column representing a feature vector for one training example.
     y -- The output vector with each column representing the output vector for one training example.
     learn_rate -- The learning rate for regularization
-    errorfn -- Error function used when computing cost
+    errfn -- Error function used when computing cost
     minimizer -- A minimization function
     iterations -- Number of times to attempt to minimize the cost with different starting weights;
       the weights and the result with the lowest cost will be picked (Default: 10)
     Returns:
     The result object returned from minimizer
     """
-    costfn = self.createCostfn(X, y, learn_rate, errorfn)
+    costfn = self.createCostfn(X, y, learn_rate, errfn)
     def flattenedCostfn(weights):
       """ Wrapper function that flattens inputs to pass to a minimizer.
 
@@ -74,7 +74,7 @@ class NNTrainer(object):
 
     return best_result
 
-  def createCostfn(self, X, y, learn_rate, errorfn, computeGrad=True):
+  def createCostfn(self, X, y, learn_rate, errfn, computeGrad=True):
     """ Creates a cost function given a set of input data and other parameters.
 
     This method uses the provided dataset and other parameters to create a cost function that will
@@ -84,7 +84,7 @@ class NNTrainer(object):
     X -- The featureset with each column representing a feature vector for one training example.
     y -- The output vector with each column representing the output vector for one training example.
     learn_rate -- The learning rate for regularization
-    errorfn -- Error function used when computing cost
+    errfn -- Error function used when computing cost
     computeGrad -- Whether or not to compute the gradient or not in addition to the cost
     Returns:
     A cost function that takes a list of weights.
@@ -123,20 +123,15 @@ class NNTrainer(object):
         bias = 1 if self.nn.bias else 0
 
         # Part 1: Feed forward and get cost
-        z, a = self.nn.feedForward(X)
+        z, a, cost = self.nn.calculateCost(X, y, errfn, learn_rate)
         h = a[-1] # Hypothesis
-        err_vector = errorfn.calc(h, y)
-        unreg_cost = (1. / m) * err_vector.sum() # Unregularized cost
-        sum_squared_weights = np.sum([np.square(weight[:, bias:]).sum() for weight in weights])
-        reg_cost = (learn_rate / (2 * m)) * sum_squared_weights # Regularized cost
-        cost = reg_cost + unreg_cost
 
         if computeGrad:
           # Part 2: Backpropogation and get grad
           d = deque()
 
           # Calculate deltas
-          d.appendleft(np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]), errorfn.grad(h, y)))
+          d.appendleft(np.multiply(self.nn.layers[-1].activationfn.grad(z[-1]), errfn.grad(h, y)))
 
           for i in xrange(len(self.nn.layers) - 2, 0, -1):
             prevD = d[0]
