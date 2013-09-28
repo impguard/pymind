@@ -19,6 +19,7 @@ from util import assertType
 fn_list = dict()
 def get(name):
   assertType("errfn.get", "name", name, str)
+  assert name in fn_list, "(errfn) %s cannot be found." % name
   return fn_list[name]
 
 def add(name, fn):
