@@ -30,6 +30,9 @@ def contains(name):
   assertType("activationfn.contains", "name", name, str)
   return name in fn_list
 
+def getFnNames():
+  return fn_list.keys()
+
 class _activationfn(object):
   @classmethod
   def calc(cls, v):

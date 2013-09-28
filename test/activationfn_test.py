@@ -18,6 +18,9 @@ def testAddPlugin1():
   assert af.get("another") is 2, "A function called another should be stored in activationfn."
   assert af.contains("random"), "activationfn.contains('random') should return True."
   assert af.contains("another"), "activationfn.contains('another') should return True."
+  fnNames = ["another", "idenetit", "random", "sigmoid"]
+  assert af.getFnNames().sort() == fnNames.sort(), \
+  "The following function names %r should be stored in activationfn" % fnNames
 
 def testSigmoidCalc1():
   """ Test that sigmoid.calc works to 10 sig. digits. """
