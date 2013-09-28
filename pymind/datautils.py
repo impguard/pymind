@@ -60,7 +60,7 @@ def load_data(fname,format=None):
       raise RuntimeError('Please specify a format for file ' + fname)
   elif len(format) > 0 and format[0]=='.':
     format = format[1:]
-  if format in load_types:
+  if format in load_routines:
     return load_routines[format](fname)
   else:
     raise RuntimeError('Unrecognized file format \"' + '.' + format + '\"')
@@ -98,20 +98,34 @@ load_routines['mat'] = __load_mat_data
 """ Randomly partitions a set of training data into multiple parts
 
 Parameters:
-  X, a matrix representing the inputs for the training data
+  X, a matrix representing the inputs for the training data. Alternately, could be a dictionary
+    containing both 'X' and 'y' as keys mapped to matrices
   y, a matrix representing the outputs for the training data
-  parts, the number of parts into which the training data will be split
+  parts, the number of parts into which the training data will be split, or a list indicating the
+    proportions of each part into which we split the data
 """
-def split_data(X,y,parts=2):
-  scount = int(X.shape[1])
-  assert scount==y.shape[1], 'Invalid dataset, number of inputs must match number of outputs'
-  a = np.arange(scount)
-  np.random.shuffle(a)
-  start,inc = 0.0,scount/parts
-  end,dsets = inc,[]
-  for _ in xrange(parts):
-    indices = a[round(start):round(end)]
-    dsets.append({'X':X[:,indices],'y':y[:,indices]})
-    start = end
-    end += inc
-  return dsets
+def split_data(X,y=None,parts=2):
+  if y is None and type(X) is dict:
+    y = X['y']
+    X = X['X']
+  if hasattr(parts,'__len__'):
+    kparts = reduce(lambda x,y:x+y,parts)
+    dsparts,dsets = split_data(X,y,kparts),[]
+    for part in parts:
+      head,dsparts = dsparts[:part],dsparts[part:]
+      dsets.append({'X':np.hstack([head[i]['X'] for i in xrange(part)]),
+        'y':np.hstack([head[i]['y'] for i in xrange(part)])})
+    return dsets
+  else:
+    scount = int(X.shape[1])
+    assert scount==y.shape[1], 'Invalid dataset, number of inputs must match number of outputs'
+    a = np.arange(scount)
+    np.random.shuffle(a)
+    start,inc = 0.0,scount/parts
+    end,dsets = inc,[]
+    for _ in xrange(parts):
+      indices = a[round(start):round(end)]
+      dsets.append({'X':X[:,indices],'y':y[:,indices]})
+      start = end
+      end += inc
+    return dsets
