@@ -1,40 +1,9 @@
 import numpy as np
-from numpy.random import random as nprandom
-from pymind.components import NeuralNetwork, NNTrainer
-from pymind.activationfn import sigmoid, identity
-from pymind.errfn import squaredError, logitError
-from scipy.optimize import minimize
-
-def createMinimizer(method = 'BFGS', tolerance = 1e-3, iterations = 50, display = False):
-  """ Creates a minimizer using scipy.optimize optimization functions. """
-  def minimizer(fn, initial_guess):
-    return minimize(fn, initial_guess,
-      method = method,
-      jac = True,
-      tol = tolerance,
-      options = {
-        'maxiter': iterations,
-        'disp': display
-      })
-  return minimizer
-
-def generateMatrix(rows, columns, fn = np.sin):
-  """ Generates a matrix of a given shape using the passed function.
-
-  Uses numpy.arange to create a row vector from 0 to the desired size, then reshapes the matrix to
-  the desired dimensions. Finally, applies the supplied numpy universal function to the matrix,
-  which by default is the sine function.
-
-  Arguments:
-  rows -- the number of desired rows
-  columns -- the number of desired columns
-  fn -- a numpy universal function (default: numpy.sin)
-  Returns
-  A matrix with dimensions (rows x columns) mutated with fn.
-  """
-  size = rows * columns
-  matrix = np.arange(size).reshape(rows, columns)
-  return fn(np.matrix(matrix))
+import pymind
+from pymind import NeuralNetwork
+from pymind.activationfn import identity, sigmoid
+from pymind.errfn import logitError, squaredError
+from pymind.util import generate_matrix, unroll_matrices, reshape_vector, create_minimizer
 
 def computeNumericalGradient(fn, x, e = 1e-4):
   """ Computes the gradient of a function using "finite differences".
@@ -60,7 +29,7 @@ def computeNumericalGradient(fn, x, e = 1e-4):
   return numGrad
 
 def testCostAccuracy1():
-  """ Tests accuracy of cost function in the nntrainer class to 10 sig. digits.
+  """ Tests accuracy of cost calculated by a costfn created by create_costfn to 10 sig. digits.
 
   Turns off regularization by setting the learning rate to 0.
   """
@@ -72,29 +41,28 @@ def testCostAccuracy1():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   # Create cost function parameters
-  X = generateMatrix(10, 3)
-  y = generateMatrix(6, 3)
+  X = generate_matrix(10, 3)
+  y = generate_matrix(6, 3)
   learn_rate = 0
   errfn = logitError
 
   # Create cost function
-  costfn = trainer.createCostfn(X, y, learn_rate, errfn)
+  costfn = pymind.create_costfn(nnet, X, y, learn_rate, errfn)
 
   # Generate input weights
-  weights = [generateMatrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
+  weights = [generate_matrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
 
   # Run cost function
   cost, grad = costfn(weights)
   actual = 5.40419468413414 # Calculated with Octave
 
   np.testing.assert_almost_equal(cost, actual, decimal=10,
-    err_msg = "Trainer cost function not accurate enough.")
+    err_msg = "Cost function created by create_costfn does not calculate cost accurately enough.")
 
 def testCostAccuracy2():
-  """ Tests accuracy of cost function in the nntrainer class to 10 sig. digits.
+  """ Tests accuracy of cost calculated by a costfn created by create_costfn to 10 sig. digits.
 
   Turns on regularization by setting the learning rate to 1.
   """
@@ -106,29 +74,28 @@ def testCostAccuracy2():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   # Create cost function parameters
-  X = generateMatrix(15, 10)
-  y = generateMatrix(5, 10)
+  X = generate_matrix(15, 10)
+  y = generate_matrix(5, 10)
   learn_rate = 1
   errfn = logitError
 
   # Create cost function (don't compute gradient)
-  costfn = trainer.createCostfn(X, y, learn_rate, errfn, False)
+  costfn = pymind.create_costfn(nnet, X, y, learn_rate, errfn, False)
 
   # Generate input weights
-  weights = [generateMatrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
+  weights = [generate_matrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
 
   # Run cost function
   cost = costfn(weights)
   actual = 9.00036890107429 # Calculated with Octave
 
   np.testing.assert_almost_equal(cost, actual, decimal=10,
-    err_msg = "Trainer cost function not accurate enough.")
+    err_msg = "Cost function created by create_costfn does not calculate cost accurately enough.")
 
 def testGradientAccuracy1():
-  """ Tests accuracy of the trainer's gradient calculation to 10 sig. digits.
+  """ Tests accuracy of gradient calculated by a costfn created by create_costfn to 10 sig. digits.
 
   Turns off regularization by setting learn_rate to 0.
   """
@@ -140,34 +107,34 @@ def testGradientAccuracy1():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   # Create cost function parameters
-  X = generateMatrix(10, 3)
-  y = generateMatrix(6, 3)
+  X = generate_matrix(10, 3)
+  y = generate_matrix(6, 3)
   learn_rate = 0
   errfn = logitError
 
   # Create cost function
-  costfn = trainer.createCostfn(X, y, learn_rate, errfn)
+  costfn = pymind.create_costfn(nnet, X, y, learn_rate, errfn)
 
   # Generate input weights
-  weights = [generateMatrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
+  weights = [generate_matrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
 
   # Run cost function
   cost, grad = costfn(weights)
 
   # Simple unrolled cost function to use in computeNumericalGradient
-  costfn = trainer.createCostfn(X, y, learn_rate, errfn, False)
-  unrolledCostfn = lambda w: costfn(trainer.reshapeWeights(w))
+  costfn = pymind.create_costfn(nnet, X, y, learn_rate, errfn, False)
+  dimensions = [weight.shape for weight in nnet.weights]
+  unrolledCostfn = lambda w: costfn(reshape_vector(w, dimensions))
 
-  testGrad = computeNumericalGradient(unrolledCostfn, trainer.unrollWeights(weights))
+  testGrad = computeNumericalGradient(unrolledCostfn, unroll_matrices(weights))
 
-  np.testing.assert_array_almost_equal(trainer.unrollWeights(grad), testGrad, decimal = 9,
-      err_msg = "Trainer gradient calculation is not accurate enough.")
+  np.testing.assert_array_almost_equal(unroll_matrices(grad), testGrad, decimal = 9,
+      err_msg = "Cost function created by create_costfn does not calculate gradient accurately enough.")
 
 def testGradientAccuracy2():
-  """ Tests accuracy of the trainer's gradient calculation to 10 sig. digits.
+  """ Tests accuracy of gradient calculated by a costfn created by create_costfn to 10 sig. digits.
 
   Turns on regularization by setting learn_rate to 1.
   """
@@ -179,54 +146,33 @@ def testGradientAccuracy2():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   # Create cost function parameters
-  X = generateMatrix(15, 100)
-  y = generateMatrix(10, 100)
+  X = generate_matrix(15, 100)
+  y = generate_matrix(10, 100)
   learn_rate = 1.5
   errfn = logitError
 
   # Create cost function
-  costfn = trainer.createCostfn(X, y, learn_rate, errfn)
+  costfn = pymind.create_costfn(nnet, X, y, learn_rate, errfn)
 
   # Generate input weights
-  weights = [generateMatrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
+  weights = [generate_matrix(weight.shape[0], weight.shape[1]) for weight in nnet.weights]
 
   # Run cost function
   cost, grad = costfn(weights)
 
   # Simple unrolled cost function to use in computeNumericalGradient
-  costfn = trainer.createCostfn(X, y, learn_rate, errfn, False)
-  unrolledCostfn = lambda w: costfn(trainer.reshapeWeights(w))
+  costfn = pymind.create_costfn(nnet, X, y, learn_rate, errfn, False)
+  unrolledCostfn = lambda w: costfn(reshape_vector(w, nnet.dimensions))
 
-  testGrad = computeNumericalGradient(unrolledCostfn, trainer.unrollWeights(weights))
+  testGrad = computeNumericalGradient(unrolledCostfn, unroll_matrices(weights))
 
-  np.testing.assert_array_almost_equal(trainer.unrollWeights(grad), testGrad, decimal = 9,
-      err_msg = "Trainer gradient calculation is not accurate enough.")
-
-def testUnrollReshapeWeights():
-  """ Tests if trainer weight unrolling and reshaping works properly. """
-  params = {
-    "input_units": 10,
-    "output_units": 6,
-    "hidden_units": 8,
-    "activationfn": [identity, sigmoid, sigmoid],
-    "bias": True
-  }
-  nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
-
-  unrolledWeights = trainer.unrollWeights(nnet.weights)
-  reshapedWeights = trainer.reshapeWeights(unrolledWeights)
-
-  for i in xrange(len(reshapedWeights)):
-    np.testing.assert_array_equal(reshapedWeights[i], nnet.weights[i],
-      err_msg = "The reshapedWeight at index %d is not the same as the \
-        same weight in the neural network." % i)
+  np.testing.assert_array_almost_equal(unroll_matrices(grad), testGrad, decimal = 9,
+      err_msg = "Cost function created by create_costfn does not calculate gradient accurately enough.")
 
 def testOR():
-  """ Tests if trainer can train OR function. """
+  """ Tests if pymind can train OR function. """
   params = {
     "input_units": 2,
     "output_units": 1,
@@ -234,16 +180,15 @@ def testOR():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   X = np.matrix([[0,0,1,1],
                  [0,1,0,1]])
   y = np.matrix([[0,1,1,1]])
 
-  minimizer = createMinimizer(iterations = 25, display = False)
+  minimizer = create_minimizer(iterations = 25, display = False)
 
   # Run 10 times and pick result with lowest error
-  result = trainer.train(X, y, 0.0001, logitError, minimizer)
+  result = pymind.train(nnet, X, y, 0.0001, logitError, minimizer)
 
   h = nnet.activate(X)
   h = np.where(h > 0.99, np.ones(h.shape), h)
@@ -252,7 +197,7 @@ def testOR():
   np.testing.assert_array_equal(h, y, err_msg = "Learning OR failed")
 
 def testAND():
-  """ Tests if trainer can train AND function. """
+  """ Tests if pymind can train AND function. """
   params = {
     "input_units": 2,
     "output_units": 1,
@@ -260,16 +205,15 @@ def testAND():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   X = np.matrix([[0,0,1,1],
                  [0,1,0,1]])
   y = np.matrix([[0,0,0,1]])
 
-  minimizer = createMinimizer(iterations = 25, display = False)
+  minimizer = create_minimizer(iterations = 25, display = False)
 
   # Run 10 times and pick result with lowest error
-  result = trainer.train(X, y, 0.0001, logitError, minimizer)
+  result = pymind.train(nnet, X, y, 0.0001, logitError, minimizer)
 
   h = nnet.activate(X)
   h = np.where(h > 0.99, np.ones(h.shape), h)
@@ -278,7 +222,7 @@ def testAND():
   np.testing.assert_array_equal(h, y, err_msg = "Learning AND failed")
 
 def testNAND():
-  """ Tests if trainer can train NAND function. """
+  """ Tests if pymind can train NAND function. """
   params = {
     "input_units": 2,
     "output_units": 1,
@@ -286,16 +230,15 @@ def testNAND():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   X = np.matrix([[0,0,1,1],
                  [0,1,0,1]])
   y = np.matrix([[1,0,0,0]])
 
-  minimizer = createMinimizer(iterations = 25, display = False)
+  minimizer = create_minimizer(iterations = 25, display = False)
 
   # Run 10 times and pick result with lowest error
-  result = trainer.train(X, y, 0.0001, logitError, minimizer)
+  result = pymind.train(nnet, X, y, 0.0001, logitError, minimizer)
 
   h = nnet.activate(X)
   h = np.where(h > 0.99, np.ones(h.shape), h)
@@ -304,7 +247,7 @@ def testNAND():
   np.testing.assert_array_equal(h, y, err_msg = "Learning NAND failed")
 
 def testXOR():
-  """ Tests if trainer can train XOR function. """
+  """ Tests if pymind can train XOR function. """
   params = {
     "input_units": 2,
     "hidden_units": 2,
@@ -313,16 +256,15 @@ def testXOR():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   X = np.matrix([[0,0,1,1],
                  [0,1,0,1]])
   y = np.matrix([[1,0,0,1]])
 
-  minimizer = createMinimizer(iterations = 100, display = False)
+  minimizer = create_minimizer(iterations = 100, display = False)
 
   # Run 10 times and pick result with lowest error
-  result = trainer.train(X, y, 0.001, logitError, minimizer)
+  result = pymind.train(nnet, X, y, 0.001, logitError, minimizer)
 
   h = nnet.activate(X)
   h = np.where(h > 0.9, np.ones(h.shape), h)
@@ -331,7 +273,7 @@ def testXOR():
   np.testing.assert_array_equal(h, y, err_msg = "Learning XOR failed")
 
 def testPolynomial1():
-  """ Tests if trainer can train degree 3 polynomial. """
+  """ Tests if pymind can train degree 3 polynomial. """
   params = {
     "input_units": 3,
     "output_units": 1,
@@ -339,7 +281,6 @@ def testPolynomial1():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   polynomial = lambda x: 1 + 3 * x - np.power(x, 2) + np.power(x, 3)
 
@@ -347,10 +288,10 @@ def testPolynomial1():
   X = np.vstack((row_X, np.power(row_X, 2), np.power(row_X, 3)))
   y = polynomial(row_X)
 
-  minimizer = createMinimizer(iterations = 50, display = True)
+  minimizer = create_minimizer(iterations = 50, display = True)
 
   # Run 10 times and pick result with lowest error
-  result = trainer.train(X, y, 0, squaredError, minimizer, iterations = 5)
+  result = pymind.train(nnet, X, y, 0, squaredError, minimizer, iterations = 5)
 
   h = nnet.activate(X)
 
@@ -358,7 +299,7 @@ def testPolynomial1():
   np.testing.assert_array_equal(check, np.zeros(h.shape), err_msg = "Learning polynomial2 failed")
 
 def testPolynomial2():
-  """ Tests if trainer can train degree 3 polynomial using regularization. """
+  """ Tests if pymind can train degree 3 polynomial using regularization. """
   params = {
     "input_units": 4,
     "output_units": 1,
@@ -366,7 +307,6 @@ def testPolynomial2():
     "bias": True
   }
   nnet = NeuralNetwork(params)
-  trainer = NNTrainer(nnet)
 
   polynomial = lambda x: 1 + 3 * x - np.power(x, 2) + np.power(x, 3)
 
@@ -374,10 +314,10 @@ def testPolynomial2():
   X = np.vstack((row_X, np.power(row_X, 2), np.power(row_X, 3), np.power(row_X, 4)))
   y = polynomial(row_X)
 
-  minimizer = createMinimizer(iterations = 50, display = True)
+  minimizer = create_minimizer(iterations = 50, display = True)
 
   # Run 10 times and pick result with lowest error
-  result = trainer.train(X, y, 0.001, squaredError, minimizer, iterations = 1)
+  result = pymind.train(nnet, X, y, 0.001, squaredError, minimizer, iterations = 1)
 
   h = nnet.activate(X)
 
