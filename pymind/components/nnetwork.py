@@ -47,6 +47,9 @@ class NeuralNetwork(object):
     # ----- Create network weights ----- #
     self.resetWeights()
 
+    # ----- Create a list of weight dimensions ----- #
+    self.dimensions = [weight.shape for weight in self.weights]
+
   # Helper methods for initialization
   def addLayer(self, units, activationfn_index):
     new_layer = NNLayer(units, self.activationfn[activationfn_index])
@@ -56,7 +59,7 @@ class NeuralNetwork(object):
     eps_init = np.sqrt(6) / np.sqrt(num_input + num_output)
     return np.matrix(np.random.rand(num_output, num_input) * 2 * eps_init - eps_init)
 
-  # Useful methods for using a NeuralNetwork
+  # Front-end methods for using a NeuralNetwork
   def resetWeights(self):
     self.weights = list()
     bias = 1 if self.bias else 0
@@ -74,7 +77,7 @@ class NeuralNetwork(object):
     Note: The actual output of the process is stored in a[-1]
 
     Arguments:
-    x -- A column vector with dimensions (self.input_units x 1)
+    x -- A column vector with dimensions (self.input_units x m)
     Returns:
     z -- A list of column vectors representing the inputs to each layer in the neural network
     a -- A list of column vectors representing the outputs of each layer in the neural network
@@ -105,3 +108,51 @@ class NeuralNetwork(object):
     except ValueError:
       print "Feed forward process failed. Most likely due to matrix dimension mismatch."
       raise
+
+  def activate(self, x):
+    """ Runs the feed forward process with this neural network, but just returns the output.
+
+    This function takes in the input vector x and runs the feed forward process. However, it will
+    only return the output of the neural network. Use feedForward if the outputs of every layer in
+    the neural network in desired.
+
+    Arguments:
+    x -- A column vector with dimensions (self.input_units x m)
+    Returns:
+    The output vector as a column vector with dimensions (self.output_units x m)
+    """
+
+    z, a = self.feedForward(x)
+    return a[-1]
+
+  def calculateCost(self, x, y, errfn, learn_rate):
+    """ Internal helper method for quickly calculating the cost of a neural network.
+
+    Will perform the feed forward process and compare the output to a expected output, using an
+    errfn to determine the actual cost.
+
+    Note: Use the cost method directly on the neural network to simply get the cost.
+
+    Arguments:
+    x -- A column vector with dimensions (self.input_units x m) representing the input
+    y -- A column vector with dimensions (self.output_units x m) representing the expected output
+    errfn -- An errfn
+    learn_rate -- The learning rate used in regularization
+    Returns:
+    z -- A list of column vectors representing the inputs to each layer in the neural network
+    a -- A list of column vectors representing the outputs to each layer in the neural network
+    cost -- The resulting cost of the neural network when compared to the expected output
+    """
+    # Helper variables
+    m = float(x.shape[1]) # Number of training examples
+    bias = 1 if self.bias else 0
+
+    z, a = self.feedForward(x)
+    h = a[-1] # Hypothesis
+    err_vector = errfn.calc(h, y)
+    unreg_cost = (1. / m) * err_vector.sum() # Unregularized cost
+    sum_squared_weights = np.sum([np.square(weight[:, bias:]).sum() for weight in self.weights])
+    reg_cost = (learn_rate / (2 * m)) * sum_squared_weights # Regularized cost
+    cost = reg_cost + unreg_cost
+
+    return z, a, cost
