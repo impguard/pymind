@@ -24,17 +24,19 @@ In order to install the dependencies, use pip:
 Note: Adding a `--system-site-packages` when using virtualenv might be preferable in order to avoid installing a local copy of numpy and scipy.
 
 ## Testing ##
+A Makefile has been provided to allow easy access to common testing utilities.
+
 In order to run the tests, use nose:
 
-    cd Pymind
-    nosetests
+    cd PyMind
+    make check
 
-Add coverage tests using the coverage plugin for nose:
+Perform coverage tests using the coverage plugin for nose:
 
-    cd Pymind
-    nosetests --with-coverage --cover-erase --cover-html --cover-package=pymind
+    cd PyMind
+    make really-check
 
-Note: The coverage tests will create a html page detailing coverage in the folder `Pymind/cover/index.html`.
+Note: The coverage tests will create a html page detailing coverage in the folder `Pymind/cover/index.html`, which will be automatically opened.
 
 User
 ----
