@@ -9,4 +9,5 @@ really-check:
 	nosetests --with-coverage --cover-erase --cover-html --cover-package=pymind
 
 clean:
-	rm $(shell find pymind -name *.pyc)
+	rm -f $(shell find pymind -name *.pyc)
+	rm -f $(shell find test -name *.pyc)
