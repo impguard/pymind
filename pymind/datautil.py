@@ -3,6 +3,7 @@ import json
 import scipy.io
 
 load_routines = {}
+save_routines = {}
 
 """
 Builder class for training data. Used to construct a dataset from scratch.
@@ -42,6 +43,61 @@ class DatasetBuilder(object):
   """
   def build(self):
     return {'X':np.matrix(self.X),'y':np.matrix(self.y)}
+
+""" Given a file name 'fname' and a string 'format' indicating the file format, attempts to load and
+return the training data contained within the file. If no format is specified, attempts to search
+the file name for an extension.
+
+Parameters:
+  fname, the name of a file containing a training dataset
+  format, the format of the input file
+"""
+def save_data(fname,data,format=None):
+  if format is None:
+    dot = fname.rfind('.')
+    if dot != -1:
+      format = fname[dot+1:]
+    else:
+      raise RuntimeError('Please specify a format for file ' + fname)
+  elif len(format) > 0 and format[0]=='.':
+    format = format[1:]
+  if format in load_routines:
+    return save_routines[format](fname,data)
+  else:
+    raise RuntimeError('Unrecognized file format \"' + '.' + format + '\"')
+
+""" Given a file name 'fname' and a dataset 'data', saves data to <fname>.json such that it can be
+loaded using load_data or __load_json_data.
+"""
+def __save_json_data(fname,data):
+  if '.json' != fname[-5:]:
+    fname = fname + '.json'
+  fout = open(fname,'w')
+  out = {'X':[],'y':[]}
+  for x in data['X']:
+    d = []
+    for i in xrange(x.shape[1]):
+      d.append(float(x[0,i]))
+    out['X'].append(d)
+  for y in data['y']:
+    d = []
+    for i in xrange(y.shape[1]):
+      d.append(float(y[0,i]))
+    out['y'].append(d)
+  enc = json.JSONEncoder()
+  out = enc.encode(out)
+  fout.write(out)
+  fout.close()
+save_routines['json'] = __save_json_data
+
+""" Given a file name 'fname' and a dataset 'data', saves data to <fname>.mat such that it can be
+loaded using load_data or __load_mat_data.
+"""
+def __save_mat_data(fname,data):
+  if '.mat' != fname[-5:]:
+    fname = fname + '.mat'
+  scipy.io.savemat(fname,data,oned_as='row')
+save_routines['mat'] = __save_mat_data
 
 """ Given a file name 'fname' and a string 'format' indicating the file format, attempts to load and
 return the training data contained within the file. If no format is specified, attempts to search
