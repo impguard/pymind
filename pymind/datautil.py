@@ -195,17 +195,3 @@ def split_data(X, y=None, parts=2):
       start = end
       end += inc
     return dsets
-
-
-
-
-
-
-
-
-
-
-
-
-
-
