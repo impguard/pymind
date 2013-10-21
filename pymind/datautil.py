@@ -10,25 +10,25 @@ Builder class for training data. Used to construct a dataset from scratch.
 """
 class DatasetBuilder(object):
 
-  """  Constructs a new Datasetbuilder.
-
-  Parameters:
-    icount, the number of inputs to the neural network
-    ocount, the number of outputs from the neural network
-  """
   def __init__(self,icount,ocount):
+    """  Constructs a new Datasetbuilder.
+
+    Parameters:
+      icount, the number of inputs to the neural network
+      ocount, the number of outputs from the neural network
+    """
     self.X = [list() for _ in xrange(icount)]
     self.y = [list() for _ in xrange(ocount)]
     self.icount = icount
     self.ocount = ocount
 
-  """  Adds a datapoint to this DatasetBuilder.
-
-  Parameters:
-    ivec, a vector (list or array) of input features. Must be the same length as self.icount
-    ovec, a vector (list or array) of output values. Must be the same length as self.ocount
-  """
   def add(self,ivec,ovec):
+    """  Adds a datapoint to this DatasetBuilder.
+
+    Parameters:
+      ivec, a vector (list or array) of input features. Must be the same length as self.icount
+      ovec, a vector (list or array) of output values. Must be the same length as self.ocount
+    """
     assert len(ivec) == self.icount, 'Vector does not match input data.'
     assert len(ovec) == self.ocount, 'Vector does not match output data.'
     for k,data in enumerate(ivec):
@@ -36,23 +36,23 @@ class DatasetBuilder(object):
     for k,data in enumerate(ovec):
       self.y[k].append(data)
 
-  """ Returns a dictionary containing matrices X and y, consisting of the training data added to
-  DatasetBuilder.  X is mapped to an xa by xb array, where xa is the  number of inputs and xb is the
-  number of training samples.  y is mapped to an ya by yb array, where ya is the number of outputs
-  and yb is the number of training samples.
-  """
   def build(self):
+    """ Returns a dictionary containing matrices X and y, consisting of the training data added to
+    DatasetBuilder.  X is mapped to an xa by xb array, where xa is the  number of inputs and xb is
+    the number of training samples.  y is mapped to an ya by yb array, where ya is the number of
+    outputs and yb is the number of training samples.
+    """
     return {'X':np.matrix(self.X),'y':np.matrix(self.y)}
 
-""" Given a file name 'fname' and a string 'format' indicating the file format, attempts to load and
-return the training data contained within the file. If no format is specified, attempts to search
-the file name for an extension.
-
-Parameters:
-  fname, the name of a file containing a training dataset
-  format, the format of the input file
-"""
 def save_data(fname,data,format=None):
+  """ Given a file name 'fname' and a string 'format' indicating the file format, attempts to load
+  and return the training data contained within the file. If no format is specified, attempts to
+  search the file name for an extension.
+
+  Parameters:
+    fname, the name of a file containing a training dataset
+    format, the format of the input file
+  """
   if format is None:
     dot = fname.rfind('.')
     if dot != -1:
@@ -66,10 +66,10 @@ def save_data(fname,data,format=None):
   else:
     raise RuntimeError('Unrecognized file format \"' + '.' + format + '\"')
 
-""" Given a file name 'fname' and a dataset 'data', saves data to <fname>.json such that it can be
-loaded using load_data or __load_json_data.
-"""
 def __save_json_data(fname,data):
+  """ Given a file name 'fname' and a dataset 'data', saves data to <fname>.json such that it can be
+  loaded using load_data or __load_json_data.
+  """
   if '.json' != fname[-5:]:
     fname = fname + '.json'
   fout = open(fname,'w')
@@ -90,24 +90,24 @@ def __save_json_data(fname,data):
   fout.close()
 save_routines['json'] = __save_json_data
 
-""" Given a file name 'fname' and a dataset 'data', saves data to <fname>.mat such that it can be
-loaded using load_data or __load_mat_data.
-"""
 def __save_mat_data(fname,data):
+  """ Given a file name 'fname' and a dataset 'data', saves data to <fname>.mat such that it can be
+  loaded using load_data or __load_mat_data.
+  """
   if '.mat' != fname[-5:]:
     fname = fname + '.mat'
   scipy.io.savemat(fname,data,oned_as='row')
 save_routines['mat'] = __save_mat_data
 
-""" Given a file name 'fname' and a string 'format' indicating the file format, attempts to load and
-return the training data contained within the file. If no format is specified, attempts to search
-the file name for an extension.
-
-Parameters:
-  fname, the name of a file containing a training dataset
-  format, the format of the input file
-"""
 def load_data(fname,format=None):
+  """ Given a file name 'fname' and a string 'format' indicating the file format, attempts to load
+  and return the training data contained within the file. If no format is specified, attempts to
+  search the file name for an extension.
+
+  Parameters:
+    fname, the name of a file containing a training dataset
+    format, the format of the input file
+  """
   if format is None:
     dot = fname.rfind('.')
     if dot != -1:
@@ -121,14 +121,14 @@ def load_data(fname,format=None):
   else:
     raise RuntimeError('Unrecognized file format \"' + '.' + format + '\"')
 
-""" Converts a JSON training dataset into Numpy matrix format.
-
-Parameters:
-  fname, the name of a JSON file consisting of 2 keys: 'X' which binds to an array of arrays
-    representing the list of input vectors  and 'y' which binds to an array of arrays representing
-    the list of output vectors.
-"""
 def __load_json_data(fname):
+  """ Converts a JSON training dataset into Numpy matrix format.
+
+  Parameters:
+    fname, the name of a JSON file consisting of 2 keys: 'X' which binds to an array of arrays
+      representing the list of input vectors  and 'y' which binds to an array of arrays representing
+      the list of output vectors.
+  """
   if '.json' != fname[-5:]:
     fname = fname + '.json'
   jsfile = open(fname)
@@ -138,29 +138,30 @@ def __load_json_data(fname):
   return {'X':X,'y':y}
 load_routines['json'] = __load_json_data
 
-""" Converts a matlab training dataset into Numpy matrix format.
-
-Parameters:
-  fname, the name of a matlab file consisting of 2 keys: 'X' which binds to an array of arrays
-  representing the list of input vectors  and 'y' which binds to an array of arrays representing the
-  list of output vectors.
-"""
 def __load_mat_data(fname):
+  """ Converts a matlab training dataset into Numpy matrix format.
+
+  Parameters:
+    fname, the name of a matlab file consisting of 2 keys: 'X' which binds to an array of arrays
+    representing the list of input vectors  and 'y' which binds to an array of arrays representing
+    the list of output vectors.
+  """
   ds = scipy.io.loadmat(fname)
   X,y = np.matrix(ds['X']),np.matrix(ds['y'])
   return {'X':X,'y':y}
 load_routines['mat'] = __load_mat_data
 
-""" Randomly partitions a set of training data into multiple parts
 
-Parameters:
-  X, a matrix representing the inputs for the training data. Alternately, could be a dictionary
-    containing both 'X' and 'y' as keys mapped to matrices
-  y, a matrix representing the outputs for the training data
-  parts, the number of parts into which the training data will be split, or a list indicating the
-    proportions of each part into which we split the data
-"""
 def split_data(X,y=None,parts=2):
+  """ Randomly partitions a set of training data into multiple parts
+
+  Parameters:
+    X, a matrix representing the inputs for the training data. Alternately, could be a dictionary
+      containing both 'X' and 'y' as keys mapped to matrices
+    y, a matrix representing the outputs for the training data
+    parts, the number of parts into which the training data will be split, or a list indicating the
+      proportions of each part into which we split the data
+  """
   if y is None and type(X) is dict:
     y = X['y']
     X = X['X']
@@ -185,3 +186,17 @@ def split_data(X,y=None,parts=2):
       start = end
       end += inc
     return dsets
+
+
+
+
+
+
+
+
+
+
+
+
+
+
