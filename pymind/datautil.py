@@ -10,7 +10,7 @@ Builder class for training data. Used to construct a dataset from scratch.
 """
 class DatasetBuilder(object):
 
-  def __init__(self,icount,ocount):
+  def __init__(self, icount, ocount):
     """  Constructs a new Datasetbuilder.
 
     Parameters:
@@ -22,7 +22,7 @@ class DatasetBuilder(object):
     self.icount = icount
     self.ocount = ocount
 
-  def add(self,ivec,ovec):
+  def add(self, ivec, ovec):
     """  Adds a datapoint to this DatasetBuilder.
 
     Parameters:
@@ -31,9 +31,9 @@ class DatasetBuilder(object):
     """
     assert len(ivec) == self.icount, 'Vector does not match input data.'
     assert len(ovec) == self.ocount, 'Vector does not match output data.'
-    for k,data in enumerate(ivec):
+    for k, data in enumerate(ivec):
       self.X[k].append(data)
-    for k,data in enumerate(ovec):
+    for k, data in enumerate(ovec):
       self.y[k].append(data)
 
   def build(self):
@@ -42,16 +42,17 @@ class DatasetBuilder(object):
     the number of training samples.  y is mapped to an ya by yb array, where ya is the number of
     outputs and yb is the number of training samples.
     """
-    return {'X':np.matrix(self.X),'y':np.matrix(self.y)}
+    return {'X':np.matrix(self.X), 'y':np.matrix(self.y)}
 
-def save_data(fname,data,format=None):
-  """ Given a file name 'fname' and a string 'format' indicating the file format, attempts to load
-  and return the training data contained within the file. If no format is specified, attempts to
-  search the file name for an extension.
+def save_data(fname, data, format=None):
+  """ Given a file name 'fname', format 'format' and a dataset 'data', attempts to save data to file
+  formatted using 'format' such that it can be loaded using load_data. If format is not specified,
+  attempts to search the file name for an extension.
 
   Parameters:
-    fname, the name of a file containing a training dataset
-    format, the format of the input file
+    fname, the name of the target file
+    data, the dataset to save
+    format, the format of the output file
   """
   if format is None:
     dot = fname.rfind('.')
@@ -62,27 +63,31 @@ def save_data(fname,data,format=None):
   elif len(format) > 0 and format[0]=='.':
     format = format[1:]
   if format in load_routines:
-    return save_routines[format](fname,data)
+    return save_routines[format](fname, data)
   else:
     raise RuntimeError('Unrecognized file format \"' + '.' + format + '\"')
 
-def __save_json_data(fname,data):
+def __save_json_data(fname, data):
   """ Given a file name 'fname' and a dataset 'data', saves data to <fname>.json such that it can be
   loaded using load_data or __load_json_data.
+
+  Parameters:
+    fname, the name of the target file
+    data, the dataset to save
   """
   if '.json' != fname[-5:]:
     fname = fname + '.json'
-  fout = open(fname,'w')
-  out = {'X':[],'y':[]}
+  fout = open(fname, 'w')
+  out = {'X':[], 'y':[]}
   for x in data['X']:
     d = []
     for i in xrange(x.shape[1]):
-      d.append(float(x[0,i]))
+      d.append(float(x[0, i]))
     out['X'].append(d)
   for y in data['y']:
     d = []
     for i in xrange(y.shape[1]):
-      d.append(float(y[0,i]))
+      d.append(float(y[0, i]))
     out['y'].append(d)
   enc = json.JSONEncoder()
   out = enc.encode(out)
@@ -90,16 +95,20 @@ def __save_json_data(fname,data):
   fout.close()
 save_routines['json'] = __save_json_data
 
-def __save_mat_data(fname,data):
+def __save_mat_data(fname, data):
   """ Given a file name 'fname' and a dataset 'data', saves data to <fname>.mat such that it can be
   loaded using load_data or __load_mat_data.
+
+  Parameters:
+    fname, the name of the target file
+    data, the dataset to save
   """
   if '.mat' != fname[-5:]:
     fname = fname + '.mat'
-  scipy.io.savemat(fname,data,oned_as='row')
+  scipy.io.savemat(fname, data, oned_as='row')
 save_routines['mat'] = __save_mat_data
 
-def load_data(fname,format=None):
+def load_data(fname, format=None):
   """ Given a file name 'fname' and a string 'format' indicating the file format, attempts to load
   and return the training data contained within the file. If no format is specified, attempts to
   search the file name for an extension.
@@ -134,8 +143,8 @@ def __load_json_data(fname):
   jsfile = open(fname)
   ds = json.load(jsfile)
   jsfile.close()
-  X,y = np.matrix(ds[u'X']),np.matrix(ds[u'y'])
-  return {'X':X,'y':y}
+  X, y = np.matrix(ds[u'X']), np.matrix(ds[u'y'])
+  return {'X':X, 'y':y}
 load_routines['json'] = __load_json_data
 
 def __load_mat_data(fname):
@@ -147,12 +156,12 @@ def __load_mat_data(fname):
     the list of output vectors.
   """
   ds = scipy.io.loadmat(fname)
-  X,y = np.matrix(ds['X']),np.matrix(ds['y'])
-  return {'X':X,'y':y}
+  X, y = np.matrix(ds['X']), np.matrix(ds['y'])
+  return {'X':X, 'y':y}
 load_routines['mat'] = __load_mat_data
 
 
-def split_data(X,y=None,parts=2):
+def split_data(X, y=None, parts=2):
   """ Randomly partitions a set of training data into multiple parts
 
   Parameters:
@@ -165,11 +174,11 @@ def split_data(X,y=None,parts=2):
   if y is None and type(X) is dict:
     y = X['y']
     X = X['X']
-  if hasattr(parts,'__len__'):
-    kparts = reduce(lambda x,y:x+y,parts)
-    dsparts,dsets = split_data(X,y,kparts),[]
+  if hasattr(parts, '__len__'):
+    kparts = reduce(lambda x, y:x+y, parts)
+    dsparts, dsets = split_data(X, y , kparts), []
     for part in parts:
-      head,dsparts = dsparts[:part],dsparts[part:]
+      head, dsparts = dsparts[:part], dsparts[part:]
       dsets.append({'X':np.hstack([head[i]['X'] for i in xrange(part)]),
         'y':np.hstack([head[i]['y'] for i in xrange(part)])})
     return dsets
@@ -178,11 +187,11 @@ def split_data(X,y=None,parts=2):
     assert scount==y.shape[1], 'Invalid dataset, number of inputs must match number of outputs'
     a = np.arange(scount)
     np.random.shuffle(a)
-    start,inc = 0.0,scount/parts
-    end,dsets = inc,[]
+    start, inc = 0.0, scount/parts
+    end, dsets = inc, []
     for _ in xrange(parts):
       indices = a[round(start):round(end)]
-      dsets.append({'X':X[:,indices],'y':y[:,indices]})
+      dsets.append({'X':X[:, indices], 'y':y[:, indices]})
       start = end
       end += inc
     return dsets
