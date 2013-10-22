@@ -34,7 +34,8 @@ def train(nnet, X, y, learn_rate, errfn, minimizer, iterations = 10):
   iterations -- Number of times to attempt to minimize the cost with different starting weights;
     the weights and the result with the lowest cost will be picked (Default: 10)
   Returns:
-  The result object returned from minimizer
+  The result object returned from minimizer. The neural network passed will be mutated (trained)
+  after this function is run.
   """
   costfn = create_costfn(nnet, X, y, learn_rate, errfn)
   dimensions = nnet.dimensions
