@@ -1,0 +1,33 @@
+IDEA:
+	iterator = [Neural Network Suite 1, Neural Network Suite 2, ...]
+		-> run callback function on each neural network
+
+SPEC:
+	Input:
+		(1) An iterator that returns a list of neural network suites. Each neural network suite is
+			a dictionary that contains the necessary settings to build a neural network and train
+			it[1].
+		(2) A callback function to run on each neural network produced[2].
+		(3) (NOT REQUIRED[3]) A combiner function to combine the results of each callback
+			function[4].
+
+	Output: Runs the callback function on each neural network produced, combining the results with
+		the combiner function provided. Returns the final result of the final combine operation.
+
+DETAILS: (numbers refer to the spec, * indicates miscellaneous)
+	[1] See BUIDER_SPEC spec to get a better idea of the settings a suite contains.
+	[2] The callback function should take a neural network as its only argument.
+	[3] The combiner is not required. By default, concatenate the results of the callback function.
+	[4] The combiner function should take:
+		(1) the result of the callback function in the current iteration
+		(2) The result of the previous combine operation
+		as its only two arguments.
+	[*] Each iteration of this advanced training method should look like this:
+		for every neuralnetwork_suite:
+			curr_suite = next_neuralnetwork_suite()
+			curr_nnet = new neuralnetwork based on curr_suite settings
+			train(curr_nnet) with curr_suite settings
+			intermediate_result = callback(curr_nnet) if successfully trained
+			total_result = combine(total_result, intermediate_result)
+		return total_result
+	[*] callbacks should be known as metric functions.

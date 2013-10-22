@@ -1,0 +1,35 @@
+IDEA:
+	USER settings -> iterator = [Neural Network Suite 1, Neural Network Suite 2, ...]
+
+SPEC:
+	Input: User settings[1] for a neural network suite.
+	Output: An iterator[2] that produces a list of neural network suites[4] in the proper order[3].
+
+	A neural network suite consists of:
+		* Neural Network Settings
+			- Input Layer Units
+			- Output Layer Units
+			- Hidden Layer Units
+			- Bias
+			- Activation Functions
+		* Training Information
+			- Input Training Data/Output Expected Data
+			- Learning Rate
+			- Error Function
+			- Minimizing Function
+			- Training Iterations
+	For a given setting (i.e. input layer units), multiple values can be specified.
+
+DETAILS: (numbers refer to the spec, * indicates miscellaneous)
+	[1] Must be error checked to ensure basic correctness. This includes simple type checking,
+		ensuring that all the appropriate settings are provided, and using default values for
+		settings that are unset.
+	[2] Iterator should be a python iterator that returns a new neural network for each call.
+	[3] If a setting only has one value, all neural network suites generated should use that value.
+		Otherwise, if multiple values are provided for one setting, the number of values provided
+		should match, i.e. if two values for input layer units are provided, any setting with more
+		than one value should also have exactly two values. Otherwise, an error should be thrown
+		when the iterator is built.
+	[4] Each suite should be a dictionary that allows easy access to the settings of the suite.
+	[*] Use a builder scheme to allow chaining settings with a final "build" method to produce the
+		final iterator.

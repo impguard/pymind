@@ -1,0 +1,10 @@
+IDEA:
+	neural network -> some metric value
+
+SPEC:
+	Input: A neural network
+	Output: Runs some function on the neural network and returns the value[1]
+
+DETAILS:
+	[*] Similar in concept to activationfn and errfn, see those files for reference.
+	[*] Generalized class function must be implemented first, specific metrics can be added later.
