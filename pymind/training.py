@@ -2,6 +2,8 @@
 
 import numpy as np
 from collections import deque
+from pymind.errfn import squaredError
+from pymind.metricfn import ListCombiner
 from util import unroll_matrices, reshape_vector
 
 def train(nnet, X, y, learn_rate, errfn, minimizer, iterations = 10):
@@ -154,3 +156,23 @@ def create_costfn(nnet, X, y, learn_rate, errfn, computeGrad=True):
       print "Calculating cost of a neural network failed. Most likely due to dimension mismatch."
       raise
   return costfn
+
+def train_suites(suites,metric,combiner=ListCombiner):
+  """ Given a list of suites that can be used to construct and train neural networks, trains each
+  neural network and runs callback 'metric' on the resulting neural network, combining the metrics
+  returned by each callback using the reduce function 'combiner'.
+  """
+  total = None
+  for suite in suites:
+    params = suite['params']
+    X = suite['X']
+    y = suite['y']
+    learn_rate = suite['learnrate']
+    errfn = suite['errfn']
+    minimizer = suite['minimizer']
+    it = suite['iterations']
+    nnet = NeuralNetwork(params)
+    train(nnet, X, y, learn_rate, errfn, minimizer, iterations = it)
+    res = metric.extract(nnet)
+    total = combiner.reduce(total,res)
+  return total
