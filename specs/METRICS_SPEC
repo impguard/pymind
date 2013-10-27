@@ -8,3 +8,4 @@ SPEC:
 DETAILS:
 	[*] Similar in concept to activationfn and errfn, see those files for reference.
 	[*] Generalized class function must be implemented first, specific metrics can be added later.
+a
