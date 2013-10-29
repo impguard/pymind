@@ -482,105 +482,105 @@ def testInsert():
   except TypeError:
     pass
 
-# def testSetDefaultFn():
-#   """ Testing setting the default activation function."""
-#   setting = {
-#     "layer_units": [[1,2,1], [10, 5, 5, 10], [2, 2]],
-#     "X": np.arange(15).reshape(5,3),
-#     "y": np.array([[1,2,3],[4,5,6]])
-#   }
-#   b = Builder(setting)
+def testSetDefaultFn():
+  """ Testing setting the default activation function."""
+  setting = {
+    "layer_units": [[1,2,1], [10, 5, 5, 10], [2, 2]],
+    "X": np.arange(15).reshape(5,3),
+    "y": np.array([[1,2,3],[4,5,6]])
+  }
+  b = Builder(setting)
   
-#   # Using standard default activation function
-#   suites = b.build()
-#   defaultaf = DEFAULT['af']
-#   # First suite
-#   info = suites.next()
-#   assert info["activationfn"] == ["identity", defaultaf, defaultaf], "Activation functions didn't \
-#   match expected setting."
-#   # Second suite
-#   info = suites.next()
-#   assert info["activationfn"] == ["identity", defaultaf, defaultaf, defaultaf], "Activation \
-#   functions didn't match expected setting."
-#   # Third suite
-#   info = suites.next()
-#   assert info["activationfn"] == ["identity", defaultaf], "Activation functions didn't match \
-#   expected setting."
+  # Using standard default activation function
+  suites = b.build()
+  defaultaf = DEFAULT['af']
+  # First suite
+  info = suites.next()
+  assert info["activationfn"] == ["identity", defaultaf, defaultaf], "Activation functions didn't \
+  match expected setting."
+  # Second suite
+  info = suites.next()
+  assert info["activationfn"] == ["identity", defaultaf, defaultaf, defaultaf], "Activation \
+  functions didn't match expected setting."
+  # Third suite
+  info = suites.next()
+  assert info["activationfn"] == ["identity", defaultaf], "Activation functions didn't match \
+  expected setting."
 
-#   # Using new default activation function
-#   af.add("dummyaf", 1)
-#   b.setDefaultActivationFn("dimmyaf")
-#   suites = b.build()
-#   # First suite
-#   info = suites.next()
-#   assert info["activationfn"] == ["identity", "dummyaf", "dummyaf"], "Activation functions didn't \
-#   match expected setting."
-#   # Second suite
-#   info = suites.next()
-#   assert info["activationfn"] == ["identity", "dummyaf", "dummyaf", "dummyaf"], "Activation \
-#   functions didn't match expected setting."
-#   # Third suite
-#   info = suites.next()
-#   assert info["activationfn"] == ["identity", "dummyaf"], "Activation functions didn't match \
-#   expected setting."
+  # Using new default activation function
+  af.add("dummyaf", 1)
+  b.setDefaultActivationFn("dimmyaf")
+  suites = b.build()
+  # First suite
+  info = suites.next()
+  assert info["activationfn"] == ["identity", "dummyaf", "dummyaf"], "Activation functions didn't \
+  match expected setting."
+  # Second suite
+  info = suites.next()
+  assert info["activationfn"] == ["identity", "dummyaf", "dummyaf", "dummyaf"], "Activation \
+  functions didn't match expected setting."
+  # Third suite
+  info = suites.next()
+  assert info["activationfn"] == ["identity", "dummyaf"], "Activation functions didn't match \
+  expected setting."
 
-# def testRemove():
-#   """ Testing removing value."""
-#   b = Builder()
-#   b.set(layer_units=[[1,3],[2,3],[3,3],[4,3],[5,3]])
-#   assert b.get("layer_units") == [[1,3],[2,3],[3,3],[4,3],[5,3]], "Layer units didn't match \
-#   expected setting."
-#   assert b.remove("layer_units", 0) == [1,3], "Removed layer units didn't match expected output."
-#   assert b.get("layer_units") == [[2,3],[3,3],[4,3],[5,3]], "Layer units didn't match expectet \
-#   setting."
-#   assert b.remove("layer_units", 2) == [4,3], "Removed layer units didn't match expected output."
-#   assert b.get("layer_units") == [[2,3],[3,3],[5,3]], "Layer units didn't match expectet setting."
-#   assert b.remove("layer_units", 2) == [5,3], "Removed layer units didn't match expected output."
-#   assert b.get("layer_units") == [[2,3],[3,3]], "Layer units didn't match expectet setting."
-#   assert b.remove("layer_units") == [3,3], "Removed layer units didn't match expected output."
-#   assert b.get("layer_units") == [2,3], "Layer units didn't match expectet setting."
-#   assert b.remove("layer_units") == [2,3], "Removed layer units didn't match expected output."
-#   assert b.get("layer_units") == [], "Layer units didn't match expectet setting."
-#   try:
-#     b.remove("layer_units")
-#     assert False, "Should raise IndexError for trying to remove when there is no more value."
-#   except IndexError:
-#     pass
-#   try:
-#     b.remove(1,1)
-#     assert False, "Should raise TypeError for passing non-string key."
-#   except TypeError:
-#     pass
+def testRemove():
+  """ Testing removing value."""
+  b = Builder()
+  b.set(layer_units=[[1,3],[2,3],[3,3],[4,3],[5,3]])
+  assert b.get("layer_units") == [[1,3],[2,3],[3,3],[4,3],[5,3]], "Layer units didn't match \
+  expected setting."
+  assert b.remove("layer_units", 0) == [1,3], "Removed layer units didn't match expected output."
+  assert b.get("layer_units") == [[2,3],[3,3],[4,3],[5,3]], "Layer units didn't match expectet \
+  setting."
+  assert b.remove("layer_units", 2) == [4,3], "Removed layer units didn't match expected output."
+  assert b.get("layer_units") == [[2,3],[3,3],[5,3]], "Layer units didn't match expectet setting."
+  assert b.remove("layer_units", 2) == [5,3], "Removed layer units didn't match expected output."
+  assert b.get("layer_units") == [[2,3],[3,3]], "Layer units didn't match expectet setting."
+  assert b.remove("layer_units") == [3,3], "Removed layer units didn't match expected output."
+  assert b.get("layer_units") == [2,3], "Layer units didn't match expectet setting."
+  assert b.remove("layer_units") == [2,3], "Removed layer units didn't match expected output."
+  assert b.get("layer_units") == [], "Layer units didn't match expectet setting."
+  try:
+    b.remove("layer_units")
+    assert False, "Should raise IndexError for trying to remove when there is no more value."
+  except IndexError:
+    pass
+  try:
+    b.remove(1,1)
+    assert False, "Should raise TypeError for passing non-string key."
+  except TypeError:
+    pass
 
-# def testClear():
-#   """ Testing resetting all settings to default."""
-#   dummyMinimizer = lambda x: x
-#   setting = {
-#     "minimizer": dummyMinimizer,
-#     "bias": False,
-#     "activationfn": ["sigmoid", "identity", "sigmoid"],
-#     "iterations": 1337,
-#     "learn_rate": 1.0,
-#     "layer_units": [10, 20, 1],
-#     "errfn": "logitError",
-#     "X": np.arange(15).reshape(5,3),
-#     "y": np.array([[1,2,3],[4,5,6]])
-#   }
-#   b = Builder(setting)
-#   b.clear()
-#   info = b.getSetting()
-#   # Settings for the neural network
-#   assert info['layer_units'] == DEFAULT['layer_units'], "Layer units didn't match default setting."
-#   assert info['activationfn'] == [], "Activation functions didn't match default setting."
-#   assert info['bias'] == DEFAULT['bias'], "Bias didn't match default setting."
-#   # Settings for the trainning
-#   assert info['errfn'] == DEFAULT['errfn'], "Error function didn't match default setting."
-#   assert info['learn_rate'] == DEFAULT['learn_rate'], "Learning rate didn't match default setting."
-#   assert info['minimizer'] == DEFAULT['minimizer'], "Minimizer didn't match default setting."
-#   assert info['iterations'] == DEFAULT['iterations'], "Number of trainning iterations didn't match \
-#   default setting."
-#   assert info['X'] == [], "Input trainning data (X) should be []."
-#   assert info['y'] == [], "Expected output data (y) shoulde be []."
+def testClear():
+  """ Testing resetting all settings to default."""
+  dummyMinimizer = lambda x: x
+  setting = {
+    "minimizer": dummyMinimizer,
+    "bias": False,
+    "activationfn": ["sigmoid", "identity", "sigmoid"],
+    "iterations": 1337,
+    "learn_rate": 1.0,
+    "layer_units": [10, 20, 1],
+    "errfn": "logitError",
+    "X": np.arange(15).reshape(5,3),
+    "y": np.array([[1,2,3],[4,5,6]])
+  }
+  b = Builder(setting)
+  b.clear()
+  info = b.getSetting()
+  # Settings for the neural network
+  assert info['layer_units'] == DEFAULT['layer_units'], "Layer units didn't match default setting."
+  assert info['activationfn'] == [], "Activation functions didn't match default setting."
+  assert info['bias'] == DEFAULT['bias'], "Bias didn't match default setting."
+  # Settings for the trainning
+  assert info['errfn'] == DEFAULT['errfn'], "Error function didn't match default setting."
+  assert info['learn_rate'] == DEFAULT['learn_rate'], "Learning rate didn't match default setting."
+  assert info['minimizer'] == DEFAULT['minimizer'], "Minimizer didn't match default setting."
+  assert info['iterations'] == DEFAULT['iterations'], "Number of trainning iterations didn't match \
+  default setting."
+  assert info['X'] == [], "Input trainning data (X) should be []."
+  assert info['y'] == [], "Expected output data (y) shoulde be []."
 
 # def testBuild1():
 #   """ Testing building a generator of one neural network suite."""

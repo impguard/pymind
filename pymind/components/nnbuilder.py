@@ -85,11 +85,9 @@ class Builder(object):
       fn = "Builder.__init__"
       containsValidKey = False
       for key, values in setting.items():
-        if key in validKeys:
-          containsValidKey = True
-          self.setting[key] = checkValues[key](fn, values)
-        else:
-          raise ValueError("(%s) Unknown setting: %s" % (fn, key))
+        assertValidKey(fn, key)
+        containsValidKey = True
+        self.setting[key] = checkValues[key](fn, values)
       # Raises error if setting contains none of the valid keys.
       if not containsValidKey:
         errMsg = "(%s) Expected %s to contains at least one valid key-value pair." % (fn, "setting")
@@ -192,11 +190,9 @@ class Builder(object):
       raise TypeError("(%s) Expected at least 1 argument, got 0" % fn)
     containsValidKey = False
     for key, values in kwargs.iteritems():
-      if key in validKeys:
-        containsValidKey = True
-        self.setting[key] = checkValues[key](fn, values)
-      else:
-        raise ValueError("(%s) Unknown setting: %s" % (fn, key))
+      assertValidKey(fn, key)
+      containsValidKey = True
+      self.setting[key] = checkValues[key](fn, values)
     if not containsValidKey:
       errMsg = "(%s) Expected at least one valid key-value pair." % fn
       raise ValueError(errMsg)
@@ -225,11 +221,9 @@ class Builder(object):
       raise TypeError("(%s) Expected at least 1 argument, got 0" % fn)
     containsValidKey = False
     for key, values in kwargs.iteritems():
-      if key in validKeys:
-        containsValidKey = True
-        self.setting[key].extend(checkValues[key](fn, values))
-      else:
-        raise ValueError("(%s) Unknown setting: %s" % (fn, key))
+      assertValidKey(fn, key)
+      containsValidKey = True
+      self.setting[key].extend(checkValues[key](fn, values))
     if not containsValidKey:
       errMsg = "(%s) Expected at least one valid key-value pair." % fn
       raise ValueError(errMsg)
@@ -275,9 +269,9 @@ class Builder(object):
     return self
 
   def setDefaultActivationFn(self, activationfn):
-    """ Change the default activation function that is used for a layer when none is specififed. Must 
-    be a valid activation function name, either represeenting built-in functions or user-defined ones 
-    that are added to the list of valid functions using pymind.activationfn.add.
+    """ Change the default activation function that is used for a layer when none is specififed.
+    Must be a valid activation function name, either represeenting built-in functions or 
+    user-defined ones that are added to the list of valid functions using pymind.activationfn.add.
 
     Argument:
     activationfn (str) - representing the activation function the default will be changed to.
@@ -288,13 +282,15 @@ class Builder(object):
     Raises:
     TypeError
     """
-    raise NotImplementedError("Builder.setDefaultActivationFn not implemented yet.")
+    fn = "Builder.setDefaultActivationFn"
+    assertFn(fn, "activationfn", activationfn)
+    DEFAULT["af"] = activationfn
+    return self
 
   def setDefaultErrorFn(self, errfn):
     """ Change the default error function used for trainning the neural network. Must be a valid error
     function name, either represeenting built-in functions or user-defined ones that are added to the 
     list of valid functions using pymind.errfn.add.
-
     Argument:
     errfn (str) - representing the error function the default will be changed to.
 
@@ -304,12 +300,16 @@ class Builder(object):
     Raises:
     TypeError
     """
-    raise NotImplementedError("Builder.setDefaultErrorFn not implemented yet.")
+    fn = "Builder.setDefaultErrorFn"
+    assertFn(fn, "errfn", errfn, False)
+    DEFAULT["errfn"] = errfn
+    return self
+
 
   def remove(self, key, index=None):
-    """ Remove a value of the setting, specified by key, at the given index. If no index is specified,
-    remove teh last value of the setting specified by key. Use Builder.clear to remove every value of 
-    a setting.
+    """ Remove a value of the setting, specified by key, at the given index. If no index is 
+    specified, remove teh last value of the setting specified by key. Use Builder.clear to remove 
+    every value of a setting.
 
     Arguments:
     key (str) - representing the setting to be changed.
@@ -321,8 +321,13 @@ class Builder(object):
     Raises:
     IndexError
     """
-    raise NotImplementedError("Builder.remove not implemented yet.")
-    
+    fn = "Builder.remove"
+    assertValidKey(fn, key)
+    if index == None:
+      removed = self.setting[key].pop()
+    else:
+      removed = self.setting[key].pop(index)
+    return removed 
 
   def clear(self, *args):
     """ Reset the specified setting(s) to the default. If the default activation function or error 
@@ -335,7 +340,22 @@ class Builder(object):
     Returns:
     self
     """
-    raise NotImplementedError("Builder.clear not implemented yet.")
+    fn = "Builder.clear"
+    if len(args) == 0:
+      for key in validKeys:
+        if key in DEFAULT:
+          self.setting[key] = [ DEFAULT[key] ]
+      self.setting["activationfn"] = []
+      self.setting["X"] = []
+      self.setting['y'] = []
+    else:
+      for key in kwargs:
+        assertValidKey(fn, key)
+        if key in DEFAULT:
+          self.setting[key] = [ DEFAULT[key] ]
+        else:
+          self.setting[key] = []
+    return self
 
   def build(self):
     """ Returns an iterator that produces a list of neural network suites according to the settings.
@@ -417,8 +437,9 @@ def assertTrainningData(fn, name, var, input=True):
 
 def assertValidKey(fn, key):
   """ Helper method for checking if the key corresponds to a setting."""
+  assertType(fn, "key", key, str)
   if key not in validKeys:
-    raise TypeError("(%s) %s doesn't correspond to any setting." % (fn, key))
+    raise ValueError("(%s) Unknown setting: %s." % (fn, key))
 
 def checkLayerUnits(fn, values):
   """ Helper method for making sure the values are the correct format for the layer units."""
