@@ -449,43 +449,38 @@ def testAppendErrors():
   except TypeError:
     pass
 
-# def testInsert():
-#   """ Testing inserting setting."""
-#   b = Builder()
-#   b.set(iterations=5, learn_rate=0.5, bias=[False, False, False])
-#   b.insert(0, iterations=10)
-#   assert b.get("iterations") == [10,5], "Numbers of iterations didn't match expected setting."
-#   b.insert(1, learn_rate=1.0)
-#   assert b.get("learn_rate") == [0.5,1.0], "Numbers of iterations didn't match expected setting."
-#   b.insert(2, bias=True)
-#   assert b.get("bias") == [False,False,True,False], "Bias didn't match expected setting."
-#   b.insert(4, bias=True)
-#   assert b.get("bias") == [False,False,True,False,True], "Bias didn't match expected setting."
-#   b.insert(1, iterations=[1,2,3])
-#   assert b.get("iterations") == [10,1,2,3,5], "Numbers of iterations didn't match expected setting."
-#   b.insert(2, learn_rate=[0.1,0.2])
-#   assert b.get("learn_rate") == [0.5, 1.0, 0.1, 0.2], "Numbers of iterations didn't match expected \
-#   setting."
-#   try:
-#     b.insert(10, learn_rate=0.6)
-#     assert False, "Should raise IndexError for list index out of bound."
-#   except IndexError:
-#     pass
-#   try:
-#     b.insert(0)
-#     assert False, "calling insert with only index should raise error."
-#   except TypeError:
-#     pass
-#   try:
-#     b.insert(1, iterations=10, bias=False)
-#     assert False, "calling insert with more than one setting should raise error."
-#   except TypeError:
-#     pass
-#   try:
-#     b.insert('a', learn_rate=0.6)
-#     assert False, "Should raise TypeError for index is not integer."
-#   except TypeError:
-#     pass
+def testInsert():
+  """ Testing inserting setting."""
+  b = Builder()
+  b.set(iterations=5, learn_rate=0.5, bias=[False, False, False])
+  b.insert(0, iterations=10)
+  assert b.get("iterations") == [10,5], "Numbers of iterations didn't match expected setting."
+  b.insert(1, learn_rate=1.0)
+  assert b.get("learn_rate") == [0.5,1.0], "Numbers of iterations didn't match expected setting."
+  b.insert(2, bias=True)
+  assert b.get("bias") == [False,False,True,False], "Bias didn't match expected setting."
+  b.insert(4, bias=True)
+  assert b.get("bias") == [False,False,True,False,True], "Bias didn't match expected setting."
+  b.insert(1, iterations=[1,2,3])
+  assert b.get("iterations") == [10,1,2,3,5], "Numbers of iterations didn't match expected setting."
+  b.insert(2, learn_rate=[0.1,0.2])
+  assert b.get("learn_rate") == [0.5, 1.0, 0.1, 0.2], "Numbers of iterations didn't match expected \
+  setting."
+  try:
+    b.insert(0)
+    assert False, "calling insert with only index should raise error."
+  except TypeError:
+    pass
+  try:
+    b.insert(1, iterations=10, bias=False)
+    assert False, "calling insert with more than one setting should raise error."
+  except TypeError:
+    pass
+  try:
+    b.insert('a', learn_rate=0.6)
+    assert False, "Should raise TypeError for index is not integer."
+  except TypeError:
+    pass
 
 # def testSetDefaultFn():
 #   """ Testing setting the default activation function."""

@@ -257,7 +257,22 @@ class Builder(object):
     ValueError 
     SyntaxError
     """
-    raise NotImplementedError("Builder.insert not implemented yet.")
+    fn = "Builder.append"
+    assertType(fn, "index", index, int)
+    if len(kwargs) == 0:
+      raise TypeError("(%s) Takes in exactly 2 arguments, got 1" % fn)
+    elif len(kwargs) > 1:
+      raise TypeError("(%s) Takes in exactly 2 arguments" % fn)
+    else:
+      for key, values in kwargs.iteritems():
+        if key in validKeys:
+          if (type(values) == list or type(values) == tuple):
+            self.setting[key][index:index] = values
+          else:
+            self.setting[key].insert(index, values)
+        else:
+          raise ValueError("(%s) Unknown setting: %s" % (fn, key))
+    return self
 
   def setDefaultActivationFn(self, activationfn):
     """ Change the default activation function that is used for a layer when none is specififed. Must 
