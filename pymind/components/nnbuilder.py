@@ -74,6 +74,7 @@ class Builder(object):
     TypeError - if the argument is not a dictionary
     """
     self.setting = {}
+    self.defaultaf = DEFAULT['af']
     if setting == None:
       for key in validKeys:
         if key in DEFAULT:
@@ -284,7 +285,7 @@ class Builder(object):
     """
     fn = "Builder.setDefaultActivationFn"
     assertFn(fn, "activationfn", activationfn)
-    DEFAULT["af"] = activationfn
+    self.defaultaf = activationfn
     return self
 
   def setDefaultErrorFn(self, errfn):
@@ -349,7 +350,7 @@ class Builder(object):
       self.setting["X"] = []
       self.setting['y'] = []
     else:
-      for key in kwargs:
+      for key in args:
         assertValidKey(fn, key)
         if key in DEFAULT:
           self.setting[key] = [ DEFAULT[key] ]
@@ -360,16 +361,16 @@ class Builder(object):
   def build(self):
     """ Returns an iterator that produces a list of neural network suites according to the settings.
 
-    If a setting only has one value, all suites generated will use that value. Otherwise, if multiple
-    values are provided for one setting, any other settings with multiple values should have exactly
-    two values. That is, the number of values provided should matched.
+    If a setting only has one value, all suites generated will use that value. Otherwise, if 
+    multiple values are provided for one setting, any other settings with multiple values should 
+    have exactly two values. That is, the number of values provided should matched.
 
     All settings except input (X) and output (y) trainning data can be left unset. Either the user 
-    never give the setting a value or the value of the is removed (ie. Builder.get returns empty list 
-    for the setting). In both cases the default will be used. An exception being the activation 
-    functions, which if left unset, its value will be infered from the layer units (using identity
-    function for input layer, and default activation function for other layers). Note that the number
-    of activation functions and number of layers must match, else an error will be thrown.
+    never give the setting a value or the value of the is removed (ie. Builder.get returns empty 
+    list for the setting). In both cases the default will be used. An exception being the activation 
+    functions, which if left unset, its value will be infered from the layer units (using identity 
+    function for input layer, and default activation function for other layers). Note that the 
+    number of activation functions and number of layers must match, else an error will be thrown.
 
     Returns:
     An iterator that produces a list of neural network suites in the proper order.
@@ -388,7 +389,77 @@ class Builder(object):
     ValueError - if the settings cannot be used to construct valid neural networks or to conduct 
     trainning on neural networks.
     """
-    raise NotImplementedError("Builder.build not implemented yet.")
+    fn = "Builder.build"
+    numSuites = 1
+    for key, values in self.setting.items():
+      if len(values) > numSuites:
+        numSuites = len(values)
+    assertValidSetting(fn, self.setting, numSuites)
+
+    class suiteIterator(object):
+      def __init__(self, setting, defaultaf, numSuites):
+        self.setting = dict(setting)
+        self.numSuites = numSuites
+        self.defaultaf = defaultaf
+        self.current = 0
+
+      def __iter__(self):
+        return self
+
+      def next(self):
+        if self.current < self.numSuites:
+          suite = {}
+          for key, values in self.setting.items():
+            if len(values) > 1:
+              suite[key] = values[self.current]
+            elif len(values) == 1:
+              suite[key] = values[0]
+            elif key is not "activationfn":
+              suite[key] = DEFAULT[key]
+          if len(self.setting["activationfn"]) == 0:
+            numLayer = len(suite["layer_units"])
+            suite["activationfn"] = ["identity"] + [self.defaultaf] * (numLayer - 1)
+          self.current += 1
+          return suite
+        else:
+          raise StopIteration
+
+    return suiteIterator(self.setting, self.defaultaf, numSuites)
+
+def assertValidSetting(fn, setting, numSuites):
+  """ Helper method for checking if the setting is valid."""
+  setting = dict(setting)
+  if len(setting["layer_units"]) == 0:
+    setting["layer_units"] = [ DEFAULT["layer_units"] ]
+  for key, values in setting.items():
+    if len(values) == 0 and key in ["X", "y"]:
+      raise ValueError("(%s) Both the input and output trainning data must be set." % fn)
+    elif len(values) > 1 and len(values) < numSuites:
+      errMsg = "(%s) Two or more settings have more than one value, and the number of " % fn \
+      + "values didn't match."
+      raise ValueError(errMsg)
+  layer_units = setting["layer_units"]
+  activationfn = setting["activationfn"]
+  if len(activationfn) > 1 and len(activationfn) != len(layer_units):
+    errMsg = "(%s) Two or more settings have more than one value, and the number of " % fn \
+    + "values didn't match."
+    raise ValueError(errMsg)
+  if len(activationfn) == 1:
+    for i, v in enumerate(layer_units):
+      numLayer = len(v)
+      if len(activationfn[0]) != numLayer:
+        errMsg = "(%s) In suite #%d, the number of activation functions " % (fn, i) \
+        + " (%d) didn't match the number of layers (%d)." % (len(activationfn[0]), numLayer)
+        raise ValueError(errMsg)
+  elif len(activationfn) > 1:
+    for i in xrange(len(activationfn)):
+      numLayer = len(layer_units[i])
+      numActivationFn = len(activationfn[i])
+      if numActivationFn != numLayer:
+        errMsg = "(%s) In suite #%d, the number of activation functions " % (fn, i) \
+        + " (%d) didn't match the number of layers (%d)." % (numActivationFn, numLayer)
+        raise ValueError(errMsg)
+
 
 def assertPositiveInt(fn, name, var, layer_units=True):
   """ Helper method for checking if the user input a valid positive integer."""

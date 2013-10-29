@@ -509,7 +509,7 @@ def testSetDefaultFn():
 
   # Using new default activation function
   af.add("dummyaf", 1)
-  b.setDefaultActivationFn("dimmyaf")
+  b.setDefaultActivationFn("dummyaf")
   suites = b.build()
   # First suite
   info = suites.next()
@@ -582,232 +582,241 @@ def testClear():
   assert info['X'] == [], "Input trainning data (X) should be []."
   assert info['y'] == [], "Expected output data (y) shoulde be []."
 
-# def testBuild1():
-#   """ Testing building a generator of one neural network suite."""
-#   dummyMinimizer = lambda x: x
-#   setting = {
-#     "layer_units": [10, 20, 1],
-#     "activationfn": ["sigmoid", "identity", "sigmoid"],
-#     "bias": False,
-#     "minimizer": dummyMinimizer,
-#     "iterations": 1337,
-#     "learn_rate": 1.0,
-#     "errfn": "logitError",
-#     "X": np.arange(15).reshape(5,3),
-#     "y": np.array([[1,2,3],[4,5,6]])
-#   }
-#   b = Builder(setting)
-#   suites = b.build()
-#   info = suites[0]
-#   assert info['layer_units'] == [10,20,1], "Layer units didn't match expected setting."
-#   assert info['activationfn'] == ['sigmoid', 'identity', 'sigmoid'], "Activation functions didn't \
-#   match expected setting."
-#   assert info['bias'] == False, "Bias didn't match expected setting."
-#   assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
-#   assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
-#   assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
-#   assert info['errfn'] == "logitError", "Error function didn't match expected setting."
-#   assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
-#   setting."
-#   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
-#   setting."
-#   b.clear("activationfn")
-#   suites = b.build()
-#   info = suites[0]
-#   assert info["activationfn"] == ["identity", "sigmoid", "sigmoid"]
+def testBuild1():
+  """ Testing building a generator of one neural network suite."""
+  dummyMinimizer = lambda x: x
+  setting = {
+    "layer_units": [10, 20, 1],
+    "activationfn": ["sigmoid", "identity", "sigmoid"],
+    "bias": False,
+    "minimizer": dummyMinimizer,
+    "iterations": 1337,
+    "learn_rate": 1.0,
+    "errfn": "logitError",
+    "X": np.arange(15).reshape(5,3),
+    "y": np.array([[0,1,2],[3,4,5]])
+  }
+  b = Builder(setting)
+  suites = b.build()
+  info = suites.next()
+  assert info['layer_units'] == [10,20,1], "Layer units didn't match expected setting."
+  assert info['activationfn'] == ['sigmoid', 'identity', 'sigmoid'], "Activation functions didn't \
+  match expected setting."
+  assert info['bias'] == False, "Bias didn't match expected setting."
+  assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
+  assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
+  assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
+  assert info['errfn'] == "logitError", "Error function didn't match expected setting."
+  assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
+  setting."
+  assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
+  setting."
+  b.clear("activationfn")
+  assert b.get("activationfn") == []
+  suites = b.build()
+  info = suites.next()
+  assert info["activationfn"] == ["identity", "sigmoid", "sigmoid"], "%r" % info["activationfn"]
 
-# def testBuild2():
-#   """ Testing building a generator of several neural network suite with only one setting of two or
-#   more values.
-#   """
-#   dummyMinimizer = lambda x: x
-#   setting = {
-#     "layer_units": [[10, 20, 1], [1,2,2,1], [5,2]],
-#     "bias": False,
-#     "minimizer": dummyMinimizer,
-#     "iterations": 1337,
-#     "learn_rate": 1.0,
-#     "errfn": "logitError",
-#     "X": np.arange(15).reshape(5,3),
-#     "y": np.array([[1,2,3],[4,5,6]])
-#   }
-#   b = Builder(setting)
+def testBuild2():
+  """ Testing building a generator of several neural network suite with only one setting of two or
+  more values.
+  """
+  dummyMinimizer = lambda x: x
+  setting = {
+    "layer_units": [[10, 20, 1], [1,2,2,1], [5,2]],
+    "bias": False,
+    "minimizer": dummyMinimizer,
+    "iterations": 1337,
+    "learn_rate": 1.0,
+    "errfn": "logitError",
+    "X": np.arange(15).reshape(5,3),
+    "y": np.array([[0,1,2],[3,4,5]])
+  }
+  b = Builder(setting)
 
-#   suites = b.build()
-#   # First suite
-#   info = suites[0]
-#   assert info['layer_units'] == [10,20,1], "Layer units didn't match expected setting."
-#   assert info['activationfn'] == ['identity', 'sigmoid', 'sigmoid'], "Activation functions didn't \
-#   match expected setting."
-#   assert info['bias'] == False, "Bias didn't match expected setting."
-#   assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
-#   assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
-#   assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
-#   assert info['errfn'] == "logitError", "Error function didn't match expected setting."
-#   assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
-#   setting."
-#   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
-#   setting."
-#   # Second suite
-#   info = suites[1]
-#   assert info['layer_units'] == [1,2,2,1], "Layer units didn't match expected setting."
-#   assert info['activationfn'] == ['identity', 'sigmoid', 'sigmoid', 'sigmoid'], "Activation \
-#   functions didn't match expected setting."
-#   assert info['bias'] == False, "Bias didn't match expected setting."
-#   assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
-#   assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
-#   assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
-#   assert info['errfn'] == "logitError", "Error function didn't match expected setting."
-#   assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
-#   setting."
-#   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
-#   setting."
-#   # Third suite
-#   info = suites[2]
-#   assert info['layer_units'] == [5, 2], "Layer units didn't match expected setting."
-#   assert info['activationfn'] == ['identity', 'sigmoid'], "Activation functions didn't match \
-#   expected setting."
-#   assert info['bias'] == False, "Bias didn't match expected setting."
-#   assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
-#   assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
-#   assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
-#   assert info['errfn'] == "logitError", "Error function didn't match expected setting."
-#   assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
-#   setting."
-#   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
-#   setting."
+  suites = b.build()
+  # First suite
+  info = suites.next()
+  assert info['layer_units'] == [10,20,1], "Layer units didn't match expected setting."
+  assert info['activationfn'] == ['identity', 'sigmoid', 'sigmoid'], "Activation functions didn't \
+  match expected setting."
+  assert info['bias'] == False, "Bias didn't match expected setting."
+  assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
+  assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
+  assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
+  assert info['errfn'] == "logitError", "Error function didn't match expected setting."
+  assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
+  setting."
+  assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
+  setting."
+  # Second suite
+  info = suites.next()
+  assert info['layer_units'] == [1,2,2,1], "Layer units didn't match expected setting."
+  assert info['activationfn'] == ['identity', 'sigmoid', 'sigmoid', 'sigmoid'], "Activation \
+  functions didn't match expected setting."
+  assert info['bias'] == False, "Bias didn't match expected setting."
+  assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
+  assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
+  assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
+  assert info['errfn'] == "logitError", "Error function didn't match expected setting."
+  assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
+  setting."
+  assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
+  setting."
+  # Third suite
+  info = suites.next()
+  assert info['layer_units'] == [5, 2], "Layer units didn't match expected setting."
+  assert info['activationfn'] == ['identity', 'sigmoid'], "Activation functions didn't match \
+  expected setting."
+  assert info['bias'] == False, "Bias didn't match expected setting."
+  assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
+  assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
+  assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
+  assert info['errfn'] == "logitError", "Error function didn't match expected setting."
+  assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
+  setting."
+  assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
+  setting."
 
-# def testBuild3():
-#   """ Testing building a generator of several neural network suite with more than one setting of two
-#   or more values.
-#   """
-#   dummyMinimizer = lambda x: x
-#   setting = {
-#     "layer_units": [[10, 20, 1], [1,2,2,1]],
-#     "activationfn": [["identity", "sigmoid", "sigmoid"], ["identity", "sigmoid", "sigmoid", 
-#     "sigmoid"]],
-#     "bias": False,
-#     "minimizer": dummyMinimizer,
-#     "iterations": [1337, 10],
-#     "learn_rate": 1.0,
-#     "errfn": ["logitError", "squaredError"],
-#     "X": np.arange(15).reshape(5,3),
-#     "y": np.array([[1,2,3],[4,5,6]])
-#   }
-#   b = Builder(setting)
+def testBuild3():
+  """ Testing building a generator of several neural network suite with more than one setting of two
+  or more values.
+  """
+  dummyMinimizer = lambda x: x
+  setting = {
+    "layer_units": [[10, 20, 1], [1,2,2,1]],
+    "activationfn": [["identity", "sigmoid", "sigmoid"], ["identity", "sigmoid", "sigmoid", 
+    "sigmoid"]],
+    "bias": False,
+    "minimizer": dummyMinimizer,
+    "iterations": [1337, 10],
+    "learn_rate": 1.0,
+    "errfn": ["logitError", "squaredError"],
+    "X": np.arange(15).reshape(5,3),
+    "y": np.array([[0,1,2],[3,4,5]])
+  }
+  b = Builder(setting)
 
-#   suites = b.build()
-#   # First suite
-#   info = suites[0]
-#   assert info['layer_units'] == [10,20,1], "Layer units didn't match expected setting."
-#   assert info['activationfn'] == ['identity', 'sigmoid', 'sigmoid'], "Activation functions didn't \
-#   match expected setting."
-#   assert info['bias'] == False, "Bias didn't match expected setting."
-#   assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
-#   assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
-#   assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
-#   assert info['errfn'] == "logitError", "Error function didn't match expected setting."
-#   assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
-#   setting."
-#   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
-#   setting."
-#   # Second suite
-#   info = suites[1]
-#   assert info['layer_units'] == [1,2,2,1], "Layer units didn't match expected setting."
-#   assert info['activationfn'] == ['identity', 'sigmoid', 'sigmoid', 'sigmoid'], "Activation \
-#   functions didn't match expected setting."
-#   assert info['bias'] == False, "Bias didn't match expected setting."
-#   assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
-#   assert info['iterations'] == 10, "Number of iterations didn't match expected setting."
-#   assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
-#   assert info['errfn'] == "squaredError", "Error function didn't match expected setting."
-#   assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
-#   setting."
-#   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
-#   setting."
+  suites = b.build()
+  # First suite
+  info = suites.next()
+  assert info['layer_units'] == [10,20,1], "Layer units didn't match expected setting."
+  assert info['activationfn'] == ['identity', 'sigmoid', 'sigmoid'], "Activation functions didn't \
+  match expected setting."
+  assert info['bias'] == False, "Bias didn't match expected setting."
+  assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
+  assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
+  assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
+  assert info['errfn'] == "logitError", "Error function didn't match expected setting."
+  assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
+  setting."
+  assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
+  setting."
+  # Second suite
+  info = suites.next()
+  assert info['layer_units'] == [1,2,2,1], "Layer units didn't match expected setting."
+  assert info['activationfn'] == ['identity', 'sigmoid', 'sigmoid', 'sigmoid'], "Activation \
+  functions didn't match expected setting."
+  assert info['bias'] == False, "Bias didn't match expected setting."
+  assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
+  assert info['iterations'] == 10, "Number of iterations didn't match expected setting."
+  assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
+  assert info['errfn'] == "squaredError", "Error function didn't match expected setting."
+  assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
+  setting."
+  assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
+  setting."
 
-#   b.clear("activationfn", "layer_units")
-#   suites = b.build()
-#   # First suite
-#   info = suites[0]
-#   assert info['layer_units'] == DEFAULT["layer_units"], "Layer units didn't match expected setting."
-#   assert info['activationfn'] == ['identity', 'sigmoid'], "Activation functions didn't match \
-#   expected setting."
-#   assert info['bias'] == False, "Bias didn't match expected setting."
-#   assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
-#   assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
-#   assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
-#   assert info['errfn'] == "logitError", "Error function didn't match expected setting."
-#   assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
-#   setting."
-#   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
-#   setting."
-#   # Second suite
-#   info = suites[1]
-#   assert info['layer_units'] == DEFAULT["layer_units"], "Layer units didn't match expected setting."
-#   assert info['activationfn'] == ['identity', 'sigmoid'], "Activation functions didn't match \
-#   expected setting."
-#   assert info['bias'] == False, "Bias didn't match expected setting."
-#   assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
-#   assert info['iterations'] == 10, "Number of iterations didn't match expected setting."
-#   assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
-#   assert info['errfn'] == "squaredError", "Error function didn't match expected setting."
-#   assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
-#   setting."
-#   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
-#   setting."  
+  b.clear("activationfn", "layer_units")
+  suites = b.build()
+  # First suite
+  info = suites.next()
+  assert info['layer_units'] == DEFAULT["layer_units"], "Layer units didn't match expected setting."
+  assert info['activationfn'] == ['identity', 'sigmoid'], "Activation functions didn't match \
+  expected setting."
+  assert info['bias'] == False, "Bias didn't match expected setting."
+  assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
+  assert info['iterations'] == 1337, "Number of iterations didn't match expected setting."
+  assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
+  assert info['errfn'] == "logitError", "Error function didn't match expected setting."
+  assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
+  setting."
+  assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
+  setting."
+  # Second suite
+  info = suites.next()
+  assert info['layer_units'] == DEFAULT["layer_units"], "Layer units didn't match expected setting."
+  assert info['activationfn'] == ['identity', 'sigmoid'], "Activation functions didn't match \
+  expected setting."
+  assert info['bias'] == False, "Bias didn't match expected setting."
+  assert info['minimizer'] == dummyMinimizer, "Minimizer didn't match expected setting."
+  assert info['iterations'] == 10, "Number of iterations didn't match expected setting."
+  assert info['learn_rate'] == 1.0, "Learning rate didn't match expected setting."
+  assert info['errfn'] == "squaredError", "Error function didn't match expected setting."
+  assert np.array_equal(info['X'], np.arange(15).reshape(5,3)), "Input data didn't match expected \
+  setting."
+  assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
+  setting."  
 
-# def testBuildErrors():
-#   """ Testing the errors of build."""
-#   try:
-#     b = Builder()
-#     suites = b.build()
-#     assert False, "Should raise ValueError for not setting input and output trainning data."
-#   except ValueError:
-#     pass
+def testBuildErrors():
+  """ Testing the errors of build."""
+  try:
+    b = Builder()
+    suites = b.build()
+    assert False, "Should raise ValueError for not setting input and output trainning data."
+  except ValueError:
+    pass
 
-#   dummyMinimizer = lambda x: x
-#   setting = {
-#     "layer_units": [10, 20, 1],
-#     "activationfn": ["sigmoid", "sigmoid"],
-#     "bias": False,
-#     "minimizer": dummyMinimizer,
-#     "iterations": 1337,
-#     "learn_rate": 1.0,
-#     "errfn": "logitError",
-#     "X": np.arange(15).reshape(5,3),
-#     "y": np.array([[1,2,3],[4,5,6]])
-#   }
-#   b = Builder(setting)
-#   try:
-#     suites = b.build()
-#     assert False, "Should raise ValueError for number of activation functions didn't match number \
-#     of layers."
-#   except ValueError:
-#     pass
+  dummyMinimizer = lambda x: x
+  setting = {
+    "layer_units": [10, 20, 1],
+    "activationfn": ["sigmoid", "sigmoid"],
+    "bias": False,
+    "minimizer": dummyMinimizer,
+    "iterations": 1337,
+    "learn_rate": 1.0,
+    "errfn": "logitError",
+    "X": np.arange(15).reshape(5,3),
+    "y": np.array([[0,1,2],[3,4,5]])
+  }
+  b = Builder(setting)
+  try:
+    suites = b.build()
+    assert False, "Should raise ValueError for number of activation functions didn't match number \
+    of layers."
+  except ValueError:
+    pass
 
-#   b.clear("activationfn")
-#   b.set(bias=[True, False], learn_rate=[0.5, 0, 0.96])
-#   try:
-#     suites = b.build()
-#     assert False, "Should raise ValueError for number of values for bias and learning rate didn't \
-#     match."
-#   except ValueError:
-#     pass  
+  b.clear("activationfn")
+  b.set(bias=[True, False], learn_rate=[0.5, 0, 0.96])
+  try:
+    suites = b.build()
+    assert False, "Should raise ValueError for number of values for bias and learning rate didn't \
+    match."
+  except ValueError:
+    pass  
 
-#   b.set(bias=True, learn_rate=[0.5, 1.0])
-#   b.set(activationfn=[["identity", "sigmoid", "sigmoid"], ["identity", "sigmoid"]])
-#   try:
-#     suites = b.build()
-#     assert False, "Should raise ValueError for in the second suite, number of activation functions \
-#     didn't match number of layers. " 
-#   except ValueError:
-#     pass
+  b.set(bias=True, learn_rate=[0.5, 1.0])
+  b.set(activationfn=[["identity", "sigmoid", "sigmoid"], ["identity", "sigmoid"]])
+  try:
+    suites = b.build()
+    assert False, "Should raise ValueError for in the second suite, number of activation functions \
+    didn't match number of layers. " 
+  except ValueError:
+    pass
 
-#   b.append(layer_units=[10,5,5])
-#   try:
-#     suites = b.build()
-#     assert False, "Should raise ValueError for in the second suite, number of activation functions \
-#     didn't match number of layers. " 
-#   except ValueError:
-#     pass
+  b.append(learn_rate=[0.3,0.4,0.1,0.2], layer_units=[[1,2], [10,4,3]])
+  try:
+    suites = b.build()
+    assert False, "Should raise ValueError for there is activation functions for 2 suite while \
+    there is layer units for 3 suites."
+  except ValueError:
+    pass
+
+  b.append(layer_units=[10,5,5])
+  try:
+    suites = b.build()
+    assert False, "Should raise ValueError for in the second suite, number of activation functions \
+    didn't match number of layers. " 
+  except ValueError:
+    pass
