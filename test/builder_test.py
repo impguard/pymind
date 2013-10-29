@@ -55,7 +55,7 @@ def testBuilderConstructor3():
     "minimizer": dummyMinimizer,
     "bias": False,
     "layer_units": [10, 20, 1],
-    "errfn": "logitError"
+    "errfn": "logitError",
     "X": np.arrange(15).reshape(5,3),
     "y": np.array([[1,2,3],[4,5,6]])
   }
@@ -87,7 +87,7 @@ def testBuilderConstructor4():
     "minimizer": dummyMinimizer,
     "bias": [False, True],
     "layer_units": [[10, 20, 1], [5, 2]],
-    "iterations": [1337, 10, 232, 1]
+    "iterations": [1337, 10, 232, 1],
     "errfn": "logitError"
   }
   b = Builder(setting)
@@ -112,7 +112,7 @@ def testGetter1():
     "minimizer": dummyMinimizer,
     "bias": False,
     "layer_units": [10, 20, 1],
-    "errfn": "logitError"
+    "errfn": "logitError",
     "X": np.arrange(15).reshape(5,3),
     "y": np.array([[1,2,3],[4,5,6]])
   }
@@ -141,7 +141,7 @@ def testGetter2():
     "minimizer": dummyMinimizer,
     "bias": [False, True],
     "layer_units": [[10, 20, 1], [5, 2]],
-    "iterations": [1337, 10, 232, 1]
+    "iterations": [1337, 10, 232, 1],
     "errfn": "logitError"
   }
   b = Builder(setting)
@@ -171,21 +171,21 @@ def testSetter1():
   setting."
   b.set(X=np.array([[1,2,3],[4,5,6]]))
   assert np.array_equal(b.get("X"), np.arange(6).reshape(2,3)), "Input testing data didn't match expected setting."
-  b.set(y=[np.array([[5,7],[1,2]]), np.array([[1,2], [10,1]])]
+  b.set(y=[np.array([[5,7],[1,2]]), np.array([[1,2], [10,1]])])
   assert np.array_equal(b.get("y")[0], np.array([[5,7],[1,2]])), "Output data didn't match expected\
-   setting."
+  setting."
   assert np.array_equal(b.get("y")[1], np.array([[1,2],[10,1]])), "Output data didn't match expected setting."
 
 def testSetter2():
   """ Testing the setter for multple settings."""
   b = Builder()
   b.set(layer_units=[10,10], bias=[True, True], activationfn=["sigmoid", "sigmoid"], iterations=15) 
-  assert b.get("layer_units") = [10,10], "Layer units didn't match expected setting."
-  assert b.get("bias") = [True, True], "Bias didn't match expected setting."
-  assert b.get("activationfn") = ["sigmoid", "sigmoid"], "Activation functions didn't match \
+  assert b.get("layer_units") == [10,10], "Layer units didn't match expected setting."
+  assert b.get("bias") == [True, True], "Bias didn't match expected setting."
+  assert b.get("activationfn") == ["sigmoid", "sigmoid"], "Activation functions didn't match \
   expected setting."
-  assert b.get("iterations") = 15, "Number of iterations didn't match expected setting."
-  assert b.get("learn_rate") = DEFAULT['learn_rate'], "Learning rate didn't match expected setting."
+  assert b.get("iterations") == 15, "Number of iterations didn't match expected setting."
+  assert b.get("learn_rate") == DEFAULT['learn_rate'], "Learning rate didn't match expected setting."
   dummyMinimizer = lambda x: x
   setting = {
     "minimizer": dummyMinimizer,
@@ -533,7 +533,8 @@ def testRemove():
   try:
     b.remove(1,1)
     assert False, "Should raise TypeError for passing non-string key."
-  except TypeError
+  except TypeError:
+    pass
 
 def testClear():
   """ Testing resetting all settings to default."""
@@ -545,7 +546,7 @@ def testClear():
     "iterations": 1337,
     "learn_rate": 1.0,
     "layer_units": [10, 20, 1],
-    "errfn": "logitError"
+    "errfn": "logitError",
     "X": np.arrange(15).reshape(5,3),
     "y": np.array([[1,2,3],[4,5,6]])
   }
@@ -575,7 +576,7 @@ def testBuild1():
     "minimizer": dummyMinimizer,
     "iterations": 1337,
     "learn_rate": 1.0,
-    "errfn": "logitError"
+    "errfn": "logitError",
     "X": np.arrange(15).reshape(5,3),
     "y": np.array([[1,2,3],[4,5,6]])
   }
@@ -610,7 +611,7 @@ def testBuild2():
     "minimizer": dummyMinimizer,
     "iterations": 1337,
     "learn_rate": 1.0,
-    "errfn": "logitError"
+    "errfn": "logitError",
     "X": np.arrange(15).reshape(5,3),
     "y": np.array([[1,2,3],[4,5,6]])
   }
@@ -757,7 +758,7 @@ def testBuildErrors():
     "minimizer": dummyMinimizer,
     "iterations": 1337,
     "learn_rate": 1.0,
-    "errfn": "logitError"
+    "errfn": "logitError",
     "X": np.arrange(15).reshape(5,3),
     "y": np.array([[1,2,3],[4,5,6]])
   }
