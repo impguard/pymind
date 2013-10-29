@@ -220,7 +220,21 @@ class Builder(object):
     ValueError
     SyntaxError
     """
-    raise NotImplementedError("Builder.append not implemented yet.")  
+    fn = "Builder.append"
+    if len(kwargs) == 0:
+      raise TypeError("(%s) Expected at least 1 argument, got 0" % fn)
+    containsValidKey = False
+    for key, values in kwargs.iteritems():
+      if key in validKeys:
+        containsValidKey = True
+        self.setting[key].extend(checkValues[key](fn, values))
+      else:
+        raise ValueError("(%s) Unknown setting: %s" % (fn, key))
+    if not containsValidKey:
+      errMsg = "(%s) Expected at least one valid key-value pair." % fn
+      raise ValueError(errMsg)
+    return self
+    
 
   def insert(self, index, **kwargs):
     """ Insert the value(s) of the specified setting at the given index. For example, if the Builder
@@ -382,7 +396,7 @@ def assertFn(fn, name, var, activationfn=True):
 
 def assertTrainningData(fn, name, var, input=True):
   """ Helper method for checking if the user input is valid input/output data."""
-  if type(var) is not np.ndarray and type(var) is not np.matrix:
+  if (type(var) is not np.ndarray) and (type(var) is not np.matrix):
     dataType = "input trainning data" if input else "expected output data"
     raise TypeError("(%s) Expected %s (%s) to be numpy array or matrix." % (fn, name, dataType))
 
@@ -500,12 +514,12 @@ checkValues["iterations"] = checkIterations
 def checkData(fn, values, input):
   """ Helper method for checking if input/output trainning data is valid."""
   newValues = []
-  if hasattr(values, "__len__") and len(values) > 0:
+  if (type(values) == list or type(values) == tuple) and len(values) > 0:
     for value in values:
       assertTrainningData(fn, "X" if input else "y", value, input)
       newValues.append(value)
   else:
-    assertTrainningData(fn, "X" if input else "y", value, input)
+    assertTrainningData(fn, "X" if input else "y", values, input)
     newValues.append(values)
   return newValues
 

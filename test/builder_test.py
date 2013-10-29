@@ -323,131 +323,131 @@ def testSetterErrors():
   except TypeError:
     pass
 
-# def testAppend():
-#   """ Testing the appender for single setting."""
-#   b = Builder()
-#   b.set(layer_units=[2,1])
-#   b.append(layer_units=[[10,2,4], [7,5,6,1]])
-#   assert b.get("layer_units") == [[2,1], [10,2,4], [7,5,6,1]], "Layer units didn't match expected \
-#   setting."
-#   b.set(iterations=[10, 15])
-#   b.append(iterations=70)
-#   assert b.get("iterations") == [10,15,70], "Numbers of iterations didn't match expected setting."
-#   b.set(X=np.arange(6).reshape(3,2))
-#   b.append(X=np.array([1,2,3]))
-#   assert np.array_equal(b.get("X")[0], np.array([[1,2],[3,4],[5,6]])), "Input trainning data didn't\
-#    match expected setting."
-#   assert np.array_equal(b.get("X")[1], np.array([1,2,3])), "Input trainning data didn't match \
-#   expected setting."
+def testAppend():
+  """ Testing the appender for single setting."""
+  b = Builder()
+  b.set(layer_units=[2,1])
+  b.append(layer_units=[[10,2,4], [7,5,6,1]])
+  assert b.get("layer_units") == [[2,1], [10,2,4], [7,5,6,1]], "Layer units didn't match expected \
+  setting."
+  b.set(iterations=[10, 15])
+  b.append(iterations=70)
+  assert b.get("iterations") == [10,15,70], "Numbers of iterations didn't match expected setting."
+  b.set(X=np.arange(6).reshape(3,2))
+  b.append(X=np.array([1,2,3]))
+  assert np.array_equal(b.get("X")[0], np.array([[0,1],[2,3],[4,5]])), "Input trainning data didn't\
+   match expected setting."
+  assert np.array_equal(b.get("X")[1], np.array([1,2,3])), "Input trainning data didn't match \
+  expected setting."
 
-# def testAppend2():
-#   """ Testing the appender for multiple settings."""
-#   b = Builder()
-#   b.set(layer_units=[2,1], iterations=[10, 15])
-#   b.append(iterations=70, layer_units=[[10,2,4], [7,5,6,1]])
-#   assert b.get("layer_units") == [[2,1], [10,2,4], [7,5,6,1]], "Layer units didn't match expected \
-#   setting."
-#   assert b.get("iterations") == [10,15,70], "Numbers of iterations didn't match expected setting."
+def testAppend2():
+  """ Testing the appender for multiple settings."""
+  b = Builder()
+  b.set(layer_units=[2,1], iterations=[10, 15])
+  b.append(iterations=70, layer_units=[[10,2,4], [7,5,6,1]])
+  assert b.get("layer_units") == [[2,1], [10,2,4], [7,5,6,1]], "Layer units didn't match expected \
+  setting."
+  assert b.get("iterations") == [10,15,70], "Numbers of iterations didn't match expected setting."
 
-# def testAppendErrors():
-#   """ Testing the errors of the appender."""
-#   b = Builder()
-#   try:
-#     b.append()
-#     assert False, "Should raise TypeError for no arguments."
-#   except TypeError:
-#     pass
-#   try:
-#     b.append(layer_units=[1,1,0])
-#     assert False, "Passing in an 0 for layer unit should raise a ValueError."
-#   except ValueError:
-#     pass
-#   try:
-#     b.append(layer_units=[1,1,-3])
-#     assert False, "Passing in a -3 for layer unit should raise a ValueError."
-#   except ValueError:
-#     pass
-#   try:
-#     b.append(layer_units=[1,'a',3])
-#     assert False, "Passing in 'a' for layer unit should raise a TypeError."
-#   except TypeError:
-#     pass
-#   b.append(layer_units=[2.5, np.array([1])[0]])
-#   try:
-#     b.append(activationfn=["identity", 3, "sigmoid"])
-#     assert False, "Should raise a TypeError for activation function name not being string."
-#   except TypeError:
-#     pass  
-#   try:
-#     b.append(activationfn=["identity", "dummy", "sigmoid"])
-#     assert False, "Should raise an ValueError for invalid activation function name."
-#   except ValueError:
-#     pass
-#   try:
-#     b.append(errfn=[])
-#     assert False, "Should raise a TypeError for error function name not being string."
-#   except TypeError:
-#     pass  
-#   try:
-#     b.append(errfn="dummy")
-#     assert False, "Should raise an ValueError for invalid error function name."
-#   except ValueError:
-#     pass
-#   try:
-#     b.append(bias=10)
-#     assert False, "Should raise TypeError for bias not being boolean."
-#   except TypeError:
-#     pass
-#   try:
-#     b.append(learn_rate=-0.5)
-#     assert False, "Should raise ValueError for learning rate being < 0."
-#   except ValueError:
-#     pass
-#   try:
-#     b.append(learn_rate=1.1)
-#     assert False, "Should raise ValueError for learning rate being > 1."
-#   except ValueError:
-#     pass
-#   try:
-#     b.append(learn_rate='a')
-#     assert False, "Should raise TypeError for learning rate not being a number."
-#   except TypeError:
-#     pass
-#   try:
-#     b.append(iterations=0)
-#     assert False, "Should raise ValueError for number of iterations being non-positive."
-#   except ValueError:
-#     pass
-#   try:
-#     b.append(iterations=-10)
-#     assert False, "Should raise ValueError for number of iterations being non-positive."
-#   except ValueError:
-#     pass
-#   try:
-#     b.append(iterations='a')
-#     assert False, "Should raise TypeError for number of iterations not being a number."
-#   except TypeError:
-#     pass
-#   try:
-#     b.append(X='a')
-#     assert False, "Should raise TypeError for input data not being a numpy array or matrix."
-#   except TypeError:
-#     pass
-#   try:
-#     b.append(X=[[1,2],[3,4]])
-#     assert False, "Should raise TypeError for input data not being a numpy array or matrix."
-#   except TypeError:
-#     pass
-#   try:
-#     b.append(y='a')
-#     assert False, "Should raise TypeError for output data not being a numpy array or matrix."
-#   except TypeError:
-#     pass
-#   try:
-#     b.append(y=[[1,2],[3,4]])
-#     assert False, "Should raise TypeError for output data not being a numpy array or matrix."
-#   except TypeError:
-#     pass
+def testAppendErrors():
+  """ Testing the errors of the appender."""
+  b = Builder()
+  try:
+    b.append()
+    assert False, "Should raise TypeError for no arguments."
+  except TypeError:
+    pass
+  try:
+    b.append(layer_units=[1,1,0])
+    assert False, "Passing in an 0 for layer unit should raise a ValueError."
+  except ValueError:
+    pass
+  try:
+    b.append(layer_units=[1,1,-3])
+    assert False, "Passing in a -3 for layer unit should raise a ValueError."
+  except ValueError:
+    pass
+  try:
+    b.append(layer_units=[1,'a',3])
+    assert False, "Passing in 'a' for layer unit should raise a TypeError."
+  except TypeError:
+    pass
+  b.append(layer_units=[2.5, np.array([1])[0]])
+  try:
+    b.append(activationfn=["identity", 3, "sigmoid"])
+    assert False, "Should raise a TypeError for activation function name not being string."
+  except TypeError:
+    pass  
+  try:
+    b.append(activationfn=["identity", "dummy", "sigmoid"])
+    assert False, "Should raise an ValueError for invalid activation function name."
+  except ValueError:
+    pass
+  try:
+    b.append(errfn=[])
+    assert False, "Should raise a TypeError for error function name not being string."
+  except TypeError:
+    pass  
+  try:
+    b.append(errfn="dummy")
+    assert False, "Should raise an ValueError for invalid error function name."
+  except ValueError:
+    pass
+  try:
+    b.append(bias=10)
+    assert False, "Should raise TypeError for bias not being boolean."
+  except TypeError:
+    pass
+  try:
+    b.append(learn_rate=-0.5)
+    assert False, "Should raise ValueError for learning rate being < 0."
+  except ValueError:
+    pass
+  try:
+    b.append(learn_rate=1.1)
+    assert False, "Should raise ValueError for learning rate being > 1."
+  except ValueError:
+    pass
+  try:
+    b.append(learn_rate='a')
+    assert False, "Should raise TypeError for learning rate not being a number."
+  except TypeError:
+    pass
+  try:
+    b.append(iterations=0)
+    assert False, "Should raise ValueError for number of iterations being non-positive."
+  except ValueError:
+    pass
+  try:
+    b.append(iterations=-10)
+    assert False, "Should raise ValueError for number of iterations being non-positive."
+  except ValueError:
+    pass
+  try:
+    b.append(iterations='a')
+    assert False, "Should raise TypeError for number of iterations not being a number."
+  except TypeError:
+    pass
+  try:
+    b.append(X='a')
+    assert False, "Should raise TypeError for input data not being a numpy array or matrix."
+  except TypeError:
+    pass
+  try:
+    b.append(X=[[1,2],[3,4]])
+    assert False, "Should raise TypeError for input data not being a numpy array or matrix."
+  except TypeError:
+    pass
+  try:
+    b.append(y='a')
+    assert False, "Should raise TypeError for output data not being a numpy array or matrix."
+  except TypeError:
+    pass
+  try:
+    b.append(y=[[1,2],[3,4]])
+    assert False, "Should raise TypeError for output data not being a numpy array or matrix."
+  except TypeError:
+    pass
 
 # def testInsert():
 #   """ Testing inserting setting."""
