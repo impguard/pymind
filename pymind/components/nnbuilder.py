@@ -86,7 +86,7 @@ class Builder(object):
       fn = "Builder.__init__"
       containsValidKey = False
       for key, values in setting.items():
-        assertValidKey(fn, key)
+        _assertValidKey(fn, key)
         containsValidKey = True
         self.setting[key] = checkValues[key](fn, values)
       # Raises error if setting contains none of the valid keys.
@@ -121,7 +121,7 @@ class Builder(object):
     ValueError
     """
     fn = "Builder.get"
-    assertValidKey(fn, key)
+    _assertValidKey(fn, key)
     if len(args) == 0:
       data = self.setting[key]
       if len(data) == 1:
@@ -140,7 +140,7 @@ class Builder(object):
       else:
         values.append([])
       for k in args:
-        assertValidKey(fn, k)
+        _assertValidKey(fn, k)
         data = self.setting[k]
         if len(data) == 1:
           values.append(data[0])
@@ -191,7 +191,7 @@ class Builder(object):
       raise TypeError("(%s) Expected at least 1 argument, got 0" % fn)
     containsValidKey = False
     for key, values in kwargs.iteritems():
-      assertValidKey(fn, key)
+      _assertValidKey(fn, key)
       containsValidKey = True
       self.setting[key] = checkValues[key](fn, values)
     if not containsValidKey:
@@ -222,7 +222,7 @@ class Builder(object):
       raise TypeError("(%s) Expected at least 1 argument, got 0" % fn)
     containsValidKey = False
     for key, values in kwargs.iteritems():
-      assertValidKey(fn, key)
+      _assertValidKey(fn, key)
       containsValidKey = True
       self.setting[key].extend(checkValues[key](fn, values))
     if not containsValidKey:
@@ -284,7 +284,7 @@ class Builder(object):
     TypeError
     """
     fn = "Builder.setDefaultActivationFn"
-    assertFn(fn, "activationfn", activationfn)
+    _assertFn(fn, "activationfn", activationfn)
     self.defaultaf = activationfn
     return self
 
@@ -302,7 +302,7 @@ class Builder(object):
     TypeError
     """
     fn = "Builder.setDefaultErrorFn"
-    assertFn(fn, "errfn", errfn, False)
+    _assertFn(fn, "errfn", errfn, False)
     DEFAULT["errfn"] = errfn
     return self
 
@@ -323,7 +323,7 @@ class Builder(object):
     IndexError
     """
     fn = "Builder.remove"
-    assertValidKey(fn, key)
+    _assertValidKey(fn, key)
     if index == None:
       removed = self.setting[key].pop()
     else:
@@ -351,7 +351,7 @@ class Builder(object):
       self.setting['y'] = []
     else:
       for key in args:
-        assertValidKey(fn, key)
+        _assertValidKey(fn, key)
         if key in DEFAULT:
           self.setting[key] = [ DEFAULT[key] ]
         else:
@@ -394,39 +394,40 @@ class Builder(object):
     for key, values in self.setting.items():
       if len(values) > numSuites:
         numSuites = len(values)
-    assertValidSetting(fn, self.setting, numSuites)
+    _assertValidSetting(fn, self.setting, numSuites)
 
-    class suiteIterator(object):
-      def __init__(self, setting, defaultaf, numSuites):
-        self.setting = dict(setting)
-        self.numSuites = numSuites
-        self.defaultaf = defaultaf
-        self.current = 0
+    return self._suiteIterator(self.setting, self.defaultaf, numSuites)
 
-      def __iter__(self):
-        return self
+  class _suiteIterator(object):
+    def __init__(self, setting, defaultaf, numSuites):
+      self.setting = dict(setting)
+      self.numSuites = numSuites
+      self.defaultaf = defaultaf
+      self.current = 0
 
-      def next(self):
-        if self.current < self.numSuites:
-          suite = {}
-          for key, values in self.setting.items():
-            if len(values) > 1:
-              suite[key] = values[self.current]
-            elif len(values) == 1:
-              suite[key] = values[0]
-            elif key is not "activationfn":
-              suite[key] = DEFAULT[key]
-          if len(self.setting["activationfn"]) == 0:
-            numLayer = len(suite["layer_units"])
-            suite["activationfn"] = ["identity"] + [self.defaultaf] * (numLayer - 1)
-          self.current += 1
-          return suite
-        else:
-          raise StopIteration
+    def __iter__(self):
+      return self
 
-    return suiteIterator(self.setting, self.defaultaf, numSuites)
+    def next(self):
+      if self.current < self.numSuites:
+        suite = {}
+        for key, values in self.setting.items():
+          if len(values) > 1:
+            suite[key] = values[self.current]
+          elif len(values) == 1:
+            suite[key] = values[0]
+          elif key is not "activationfn":
+            suite[key] = DEFAULT[key]
+        if len(self.setting["activationfn"]) == 0:
+          numLayer = len(suite["layer_units"])
+          suite["activationfn"] = ["identity"] + [self.defaultaf] * (numLayer - 1)
+        self.current += 1
+        return suite
+      else:
+        raise StopIteration
 
-def assertValidSetting(fn, setting, numSuites):
+
+def _assertValidSetting(fn, setting, numSuites):
   """ Helper method for checking if the setting is valid."""
   setting = dict(setting)
   if len(setting["layer_units"]) == 0:
@@ -461,7 +462,7 @@ def assertValidSetting(fn, setting, numSuites):
         raise ValueError(errMsg)
 
 
-def assertPositiveInt(fn, name, var, layer_units=True):
+def _assertPositiveInt(fn, name, var, layer_units=True):
   """ Helper method for checking if the user input a valid positive integer."""
   try:
     var = int(var)
@@ -479,7 +480,7 @@ def assertPositiveInt(fn, name, var, layer_units=True):
     else:
       raise ValueError("(%s) %s should be a list of positive integers." % (fn, name))
 
-def assertLearnRate(fn, name, var):
+def _assertLearnRate(fn, name, var):
   """ Helper method for checking if the user input a valid learning rate."""
   try:
     var = float(var)
@@ -490,7 +491,7 @@ def assertLearnRate(fn, name, var):
   if var < 0 or var > 1.0:
     raise ValueError("The learning rate should be a number between 0 and 1")
 
-def assertFn(fn, name, var, activationfn=True):
+def _assertFn(fn, name, var, activationfn=True):
   """ Helper method for checking if the user input is a valid activation or error function name."""
   assertType(fn, name, var, str)
   if (not af.contains(var)) and (not ef.contains(var)):
@@ -500,19 +501,19 @@ def assertFn(fn, name, var, activationfn=True):
       errMsg = "%s is not a valid error function name." % var
     raise ValueError(errMsg)
 
-def assertTrainningData(fn, name, var, input=True):
+def _assertTrainningData(fn, name, var, input=True):
   """ Helper method for checking if the user input is valid input/output data."""
   if (type(var) is not np.ndarray) and (type(var) is not np.matrix):
     dataType = "input trainning data" if input else "expected output data"
     raise TypeError("(%s) Expected %s (%s) to be numpy array or matrix." % (fn, name, dataType))
 
-def assertValidKey(fn, key):
+def _assertValidKey(fn, key):
   """ Helper method for checking if the key corresponds to a setting."""
   assertType(fn, "key", key, str)
   if key not in validKeys:
     raise ValueError("(%s) Unknown setting: %s." % (fn, key))
 
-def checkLayerUnits(fn, values):
+def _checkLayerUnits(fn, values):
   """ Helper method for making sure the values are the correct format for the layer units."""
   if hasattr(values, "__len__") and len(values) > 0:
     newValues = []
@@ -521,23 +522,23 @@ def checkLayerUnits(fn, values):
       for value in values:
         temp = []
         for unit in value:
-          assertPositiveInt(fn, "layer_units", unit)
+          _assertPositiveInt(fn, "layer_units", unit)
           temp.append(int(unit))
         newValues.append(temp)
     # One value for layer units, ie. list of int
     else:
       temp = []
       for unit in values:
-        assertPositiveInt(fn, "layer_units", unit)
+        _assertPositiveInt(fn, "layer_units", unit)
         temp.append(int(unit))
       newValues.append(temp)
   else:
     raise TypeError("(%s) Expected layer_units to be a list of int or a list of list of int." % fn)
   return newValues
 
-checkValues["layer_units"] = checkLayerUnits
+checkValues["layer_units"] = _checkLayerUnits
 
-def checkActivationFn(fn, values):
+def _checkActivationFn(fn, values):
   """ Helper method for making sure the activation function names are valid."""
   if (type(values) == list or type(values) == tuple) and len(values) > 0:
     newValues = []
@@ -546,23 +547,23 @@ def checkActivationFn(fn, values):
       for value in values:
         temp = []
         for name in value:
-          assertFn(fn, "activationfn", name)
+          _assertFn(fn, "activationfn", name)
           temp.append(name)
         newValues.append(temp)
     # One value for activation functions, ie. list of str
     else:
       temp = []
       for name in values:
-        assertFn(fn, "activationfn", name)
+        _assertFn(fn, "activationfn", name)
         temp.append(name)
       newValues.append(temp)
   else:
     raise TypeError("(%s) Expected activationfn to be a list of str or a list of list of str." % fn)
   return newValues
 
-checkValues["activationfn"] = checkActivationFn
+checkValues["activationfn"] = _checkActivationFn
 
-def checkBias(fn, values):
+def _checkBias(fn, values):
   """ Helper method for checking if bias is valid."""
   newValues = []
   if hasattr(values, "__len__") and len(values) > 0:
@@ -574,74 +575,74 @@ def checkBias(fn, values):
     newValues.append(values)
   return newValues
 
-checkValues["bias"] = checkBias
+checkValues["bias"] = _checkBias
 
-def checkErrFn(fn, values):
+def _checkErrFn(fn, values):
   """ Helper method for checking if error function is valid."""
   newValues = []
   if (type(values) == list or type(values) == tuple) and len(values) > 0:
     for value in values:
-      assertFn(fn, "errfn", value, False)
+      _assertFn(fn, "errfn", value, False)
       newValues.append(value)
   else:
-    assertFn(fn, "errfn", values, False)
+    _assertFn(fn, "errfn", values, False)
     newValues.append(values)
   return newValues
 
-checkValues["errfn"] = checkErrFn
+checkValues["errfn"] = _checkErrFn
 
-def checkLearnRate(fn, values):
+def _checkLearnRate(fn, values):
   """ Helper method for checking if learning rate is valid."""
   newValues = []
   if hasattr(values, "__len__") and len(values) > 0:
     for value in values:
-      assertLearnRate(fn, "learn_rate", value)
+      _assertLearnRate(fn, "learn_rate", value)
       newValues.append(value)
   else:
-    assertLearnRate(fn, "learn_rate", values)
+    _assertLearnRate(fn, "learn_rate", values)
     newValues.append(values)
   return newValues
 
-checkValues["learn_rate"] = checkLearnRate
+checkValues["learn_rate"] = _checkLearnRate
 
-def checkIterations(fn, values):
+def _checkIterations(fn, values):
   """ Helper method for checking if number of iterations is valid."""
   newValues = []
   if hasattr(values, "__len__") and len(values) > 0:
     for value in values:
-      assertPositiveInt(fn, "iterations", value, False)
+      _assertPositiveInt(fn, "iterations", value, False)
       newValues.append(value)
   else:
-    assertPositiveInt(fn, "iterations", values, False)
+    _assertPositiveInt(fn, "iterations", values, False)
     newValues.append(values)
   return newValues
 
-checkValues["iterations"] = checkIterations
+checkValues["iterations"] = _checkIterations
 
-def checkData(fn, values, input):
+def _checkData(fn, values, input):
   """ Helper method for checking if input/output trainning data is valid."""
   newValues = []
   if (type(values) == list or type(values) == tuple) and len(values) > 0:
     for value in values:
-      assertTrainningData(fn, "X" if input else "y", value, input)
+      _assertTrainningData(fn, "X" if input else "y", value, input)
       newValues.append(value)
   else:
-    assertTrainningData(fn, "X" if input else "y", values, input)
+    _assertTrainningData(fn, "X" if input else "y", values, input)
     newValues.append(values)
   return newValues
 
-def checkX(fn, values):
-  return checkData(fn, values, True)
+def _checkX(fn, values):
+  return _checkData(fn, values, True)
 
-checkValues["X"] = checkX
+checkValues["X"] = _checkX
 
-def checkY(fn, values):
-  return checkData(fn, values, False)
+def _checkY(fn, values):
+  return _checkData(fn, values, False)
 
-checkValues["y"] = checkY
+checkValues["y"] = _checkY
 
 
-def checkMinimizer(fn, values):
+def _checkMinimizer(fn, values):
   """ Helper method for minimizer."""
   newValues = []
   if hasattr(values, "__len__") and len(values) > 0:
@@ -652,4 +653,4 @@ def checkMinimizer(fn, values):
     newValues.append(values)
   return newValues
 
-checkValues["minimizer"] = checkMinimizer
+checkValues["minimizer"] = _checkMinimizer
