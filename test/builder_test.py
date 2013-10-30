@@ -611,11 +611,22 @@ def testBuild1():
   setting."
   assert np.array_equal(info['y'], np.arange(6).reshape(2,3)), "Input data didn't match expected \
   setting."
+  
   b.clear("activationfn")
   assert b.get("activationfn") == []
   suites = b.build()
   info = suites.next()
   assert info["activationfn"] == ["identity", "sigmoid", "sigmoid"], "%r" % info["activationfn"]
+
+  b.remove("bias")
+  assert b.get("bias") == []
+  b.remove("learn_rate")
+  assert b.get("learn_rate") == []
+  suites = b.build()
+  info = suites.next()
+  assert info['bias'] == DEFAULT["bias"], "Bias didn't match expected setting."
+  assert info['learn_rate'] == DEFAULT["learn_rate"], "Learning rate didn't match expected setting."
+
 
 def testBuild2():
   """ Testing building a generator of several neural network suite with only one setting of two or
@@ -820,3 +831,11 @@ def testBuildErrors():
     didn't match number of layers. " 
   except ValueError:
     pass
+
+  b = Builder()
+  b.set(bias=[True, False], X=np.arange(6), y=np.arange(15))
+  suites = b.build()
+  count = 0
+  for suite in suites:
+    count += 1
+  assert count == 2, "Should have only two suites."
