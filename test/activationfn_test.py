@@ -6,6 +6,8 @@ def testGetPlugin1():
   """ Test that activationfn can properly get functions. """
   assert af.get("sigmoid") is sigmoid, "Sigmoid should be automatically added to activationfn."
   assert af.get("identity") is identity, "Identity should be automatically added to activationfn."
+  assert af.contains("sigmoid"), "activationfn.contains('sigmoid') should return True."
+  assert af.contains("identity"), "activationfn.contains('identity') should return True."
 
 def testAddPlugin1():
   """ Test that activationfn can properly add functions. """
@@ -14,6 +16,11 @@ def testAddPlugin1():
 
   assert af.get("random") is 1, "A function called random should be stored in activationfn."
   assert af.get("another") is 2, "A function called another should be stored in activationfn."
+  assert af.contains("random"), "activationfn.contains('random') should return True."
+  assert af.contains("another"), "activationfn.contains('another') should return True."
+  fnNames = ["another", "idenetit", "random", "sigmoid"]
+  assert af.getFnNames().sort() == fnNames.sort(), \
+  "The following function names %r should be stored in activationfn" % fnNames
 
 def testSigmoidCalc1():
   """ Test that sigmoid.calc works to 10 sig. digits. """
