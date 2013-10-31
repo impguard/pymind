@@ -15,94 +15,110 @@ DEFAULT = {
     "iterations" : 10
   }
 
-# Valid keys for each setting
+# Valid keys that is used to access and change the corresponding settings.
 validKeys = ["layer_units", "activationfn", "bias", "errfn", "learn_rate", "iterations", "X", "y",
   "minimizer"]
 
+# Functions for making sure the user-input values for a setting is the correct format.
 checkValues = {}
 
 class Builder(object):
-
-  def __init__(self, setting=None):
-    """ Create a builder that can generate iterator of neural network suites.
+  """ Create a builder that can generate an iteratior of neural network suites.
 
     A neural network suite consists of:
       
       * Neural Network Settings
-        - Layer Units: a list of positive integers denoting number of units for each layer. The
-        first and last integers represent the input and output layer respectively, with the rest 
-        being the hidden layers.
-        The key-value for this is ("layer_units": list of int)
-        - Bias: a boolean denoting whether the neural network is biased or not. Default is True.
-        The key-value pair for this is ("bias": bool)
-        - Activation Functions: a list of string denoting the valid names of the activation
-        functions for each layers. See pymind.activationfn for more detail. Default is the sigmoid
-        function, except for the input layer, in which case the default is the identity function.
-        The key-value pair for this is ("activationfn": list of str) 
+        - Layer Units ("layer_units": list of int): a list of positive integers denoting number of 
+            units for each layer. The first and last integers represent the input and output layer 
+            respectively, with the rest being the hidden layers.
+            The default value is [1, 1], denoting one input and one output layer unit respectively.
+        - Bias ("bias": bool): a boolean denoting whether the neural network is biased or not.
+            The default value is True.
+        - Activation Functions ("activationfn": list of str): a list of string denoting the valid 
+            names of the activation functions for each layers. 
+            See pymind.activationfn for more detail. 
+            There is no default value, if no value is input for this setting, the activation 
+            functions will be inferred from the number of layers, with identity function for the 
+            input layer, and the default activation function for the other layers. The default 
+            activation function can be accessed via Builder.getDefaultActivationFn and changed via 
+            Builder.setDefaultActivationFn
       
       * Training Information
-        - Input Training Data: a vecotr with each column representing a feature vector for one 
-        training example. The size of each column should match the number of input layer units.
-        The key-value pair for this is ("X": numpy.ndarray/numpy.matrix)
-        - Output Expected Data: the output vector with each column representing the output vector 
-        for one training example. The size of each column should match the number of output layer 
-        units.
-        The key-value pair for this is ("y": numpy.ndarray/numpy.matrix)
-        - Learning Rate: a number in [0,1] denoting the learning rate for regularization.
-        The key-value pair for this is ("learn_rate": float)
-        - Error Function: a str denoting the name of the error function used when computing cost. 
-        See pymind.errfn for more detail. Default is the squared error function.
-        The key-value pair for this is ("errfn": str)
-        - Minimizing Function: a minimization function. See pymind.mathutil.create_minimizer for 
-        more detail.
-        The key-value pair for this is ("minimizer": function)
-        - Training Iterations: a positive integer denoting number of times to attempt to minimize 
-        the cost with different starting weights.
-        The key-value pair for this is ("iterations": int)
+        - Input Training Data ("X": numpy.ndarray OR numpy.matrix): a vector with each column 
+            representing a feature vector for one training example. The size of each column should 
+            match the number of input layer units.
+            There is no default value for this setting. This setting must have at least one value 
+            before neural network suite(s) can be generated.
+        - Output Expected Data ("y": numpy.ndarray OR numpy.matrix): a vector with each column
+            representing the output vector for one training example. The size of each column should 
+            match the number of output layer units.
+            There is no default value for this setting. This setting must have at least one value 
+            before neural network suite(s) can be generated.
+        - Learning Rate ("learn_rate": float): a number in [0,1] denoting the learning rate for 
+            regularization.
+            The default is 0.7
+        - Error Function ("errfn": str): a str denoting the name of the error function used when 
+            computing cost. See pymind.errfn for more detail. 
+            The default value is "squaredError", representing the squared error function.
+        - Minimizing Function ("minimizer": function): a minimization function. 
+            See pymind.mathutil.create_minimizer for more detail.
+        - Training Iterations ("iterations": int): a positive integer denoting number of times to 
+            attempt to minimize the cost with different starting weights.
+            The default value is 10.
+  """
+  def __init__(self, setting=None):
+    """ Create a builder using the default settings or via user settings by passing in a dictionary
+    of parameters. 
 
-    Optional argument:
-    setting (dict) - Dicionary denoting the setting for one neural network suite, with one or more 
-    of the above key-value pairs. Multiple values (contained in a list) can be provided for one key,
-    which signifies multiple suites. For instance, if the learning rates for three suites are 
-    2, 3, 4 respectively, the key-value pair would be ("learn_rate": [2,3,4]). Note that to achieve 
-    the same thing for layer units and activation functions, the values must be a list of lists of 
-    int and a list of lists of str repectively. If multiple values is provided for more than one
-    setting, the number of values provided should match.
+    The parameters that can be passed in includes:
+      Layer Units ("layer_units": list of int)
+      Bias ("bias": bool)
+      Activation Functions ("activationfn": list of str)
+      Input Training Data ("X": numpy.ndarray OR numpy.matrix)
+      Output Expected Data ("y": numpy.ndarray OR numpy.matrix)
+      Learning Rate ("learn_rate": float)
+      Error Function ("errfn": str)
+      Minimizing Function ("minimizer": function)
+      Training Iterations ("iterations": int)
+    Multiple values (contained in a list) can be provided for one key, which signifies multiple 
+    suites. For instance, if the learning rates for three suites are 2, 3, 4 respectively, the 
+    key-value pair would be ("learn_rate": [2,3,4]). Note that to achieve the same behavior for 
+    layer units and activation functions, the values must be a list of lists of int and a list of 
+    lists of str respectively.
 
     Raises:
     ValueError - if setting contains none of the key-value pairs.
     TypeError - if the argument is not a dictionary
     """
-    self.setting = {}
+    self.settings = {}
     self.defaultaf = DEFAULT['af']
     if setting == None:
       for key in validKeys:
         if key in DEFAULT:
-          self.setting[key] = [ DEFAULT[key] ]
-      self.setting["activationfn"] = []
-      self.setting["X"] = []
-      self.setting['y'] = []
+          self.settings[key] = [ DEFAULT[key] ]
+      self.settings["activationfn"] = []
+      self.settings["X"] = []
+      self.settings['y'] = []
     elif type(setting) == dict:
       fn = "Builder.__init__"
-      containsValidKey = False
+      # Raises error if setting contains none of the valid keys.
+      if len(setting) == 0:
+        errMsg = "(%s) Expected %s to contains at least one valid key-value pair." % (fn, "setting")
+        raise ValueError(errMsg)
       for key, values in setting.items():
         _assertValidKey(fn, key)
         containsValidKey = True
-        self.setting[key] = checkValues[key](fn, values)
-      # Raises error if setting contains none of the valid keys.
-      if not containsValidKey:
-        errMsg = "(%s) Expected %s to contains at least one valid key-value pair." % (fn, "setting")
-        raise ValueError(errMsg)
+        self.settings[key] = checkValues[key](fn, values)
       # Every setting not set by user should be default
       for key in validKeys:
         if key not in setting and key in DEFAULT:
-          self.setting[key] = [ DEFAULT[key] ]
+          self.settings[key] = [ DEFAULT[key] ]
       if "activationfn" not in setting:
-        self.setting["activationfn"] = []
+        self.settings["activationfn"] = []
       if "X" not in setting:
-        self.setting["X"] = []
+        self.settings["X"] = []
       if "y" not in setting:
-        self.setting["y"] = []
+        self.settings["y"] = []
     else:
       raise TypeError("Argument for Builder constructor must be a dictionary.")
 
@@ -111,10 +127,11 @@ class Builder(object):
     list will be returned in this case.
 
     Argument(s):
-    key (str) - representing the setting for which the value(s) will be retrieved.
+    key (str) -- representing the setting for which the value(s) will be retrieved.
 
     Returns:
-    value or a list of values. The type of the value varies depending on the corresponding setting.
+    A value or a list of values. The type of the value varies depending on the corresponding 
+      setting.
 
     Raises:
     TypeError
@@ -123,7 +140,7 @@ class Builder(object):
     fn = "Builder.get"
     _assertValidKey(fn, key)
     if len(args) == 0:
-      data = self.setting[key]
+      data = self.settings[key]
       if len(data) == 1:
         values = data[0]
       elif len(data) > 1:
@@ -132,7 +149,7 @@ class Builder(object):
         values = []
     else:
       values = []
-      data = self.setting[key]
+      data = self.settings[key]
       if len(data) == 1:
         values.append(data[0])
       elif len(data) > 1:
@@ -141,7 +158,7 @@ class Builder(object):
         values.append([])
       for k in args:
         _assertValidKey(fn, k)
-        data = self.setting[k]
+        data = self.settings[k]
         if len(data) == 1:
           values.append(data[0])
         elif len(data) > 1:
@@ -151,15 +168,15 @@ class Builder(object):
     return values
 
   def getSetting(self):
-    """ Retrieve the value for the every settings, in the form of a dictionary with the setting as
-    the key.
+    """ Retrieve the value for every settings, in the form of a dictionary with the setting as the 
+    key.
 
     Returns:
-    a dictionary with the settings as the dictionary-keys, and their values as the corresponding 
-    dictionary-values.
+    A dictionary with the settings as the dictionary-keys, and their values as the corresponding 
+      dictionary-values.
     """
     info = {}
-    for k, v in self.setting.items():
+    for k, v in self.settings.items():
       if len(v) == 1:
         info[k] = v[0]
       elif len(v) > 1:
@@ -175,8 +192,8 @@ class Builder(object):
     suite and 5 in the second suite.
 
     Arguments:
-    key=val - key is a string representing the setting to be changed. val is the value assoicated 
-    with the setting. See docstring of the constructor for more detail on valid keys and values.
+    key=val -- key is a string representing the setting to be changed. val is the value assoicated 
+      with the setting. See docstring of the constructor for more detail on valid keys and values.
 
     Return:
     self
@@ -189,25 +206,20 @@ class Builder(object):
     fn = "Builder.set"
     if len(kwargs) == 0:
       raise TypeError("(%s) Expected at least 1 argument, got 0" % fn)
-    containsValidKey = False
     for key, values in kwargs.iteritems():
       _assertValidKey(fn, key)
       containsValidKey = True
-      self.setting[key] = checkValues[key](fn, values)
-    if not containsValidKey:
-      errMsg = "(%s) Expected at least one valid key-value pair." % fn
-      raise ValueError(errMsg)
+      self.settings[key] = checkValues[key](fn, values)
     return self
 
   def append(self, **kwargs):
     """ Add new value(s) for the specified setting(s). For example, if the Builder already has its 
     bias set to True and learn rate to be 0.6, then after append(bias=False, learn_rate=[0.1,0.9]),
-    the bias will be True in the first suite and False in the second, and the learning rate will be 
-    0.6, 0.1, and 0.9 in the first, second, and third suites respectively.
+    the bias will be [True, False], and the learning rate will be [0.6, 0.1, 0.9].
 
     Arguments:
-    key=val - key is a string representing the setting to be appended. val is the value assoicated 
-    with the setting. See docstring of the constructor for more detail on valid keys and values.
+    key=val -- key is a string representing the setting to be appended. val is the value assoicated 
+      with the setting. See docstring of the constructor for more detail on valid keys and values.
 
     Returns:
     self
@@ -220,14 +232,10 @@ class Builder(object):
     fn = "Builder.append"
     if len(kwargs) == 0:
       raise TypeError("(%s) Expected at least 1 argument, got 0" % fn)
-    containsValidKey = False
     for key, values in kwargs.iteritems():
       _assertValidKey(fn, key)
       containsValidKey = True
-      self.setting[key].extend(checkValues[key](fn, values))
-    if not containsValidKey:
-      errMsg = "(%s) Expected at least one valid key-value pair." % fn
-      raise ValueError(errMsg)
+      self.settings[key].extend(checkValues[key](fn, values))
     return self
     
 
@@ -239,9 +247,9 @@ class Builder(object):
     setting at a time; error will be thrown if more than one setting is passed in as arguments.
 
     Arguments:
-    index (int) - the index at which the insertion occurs.
-    key=val - key is a string representing the setting to be changed. val is the value assoicated 
-    with the setting. See docstring of the constructor for more detail on valid keys and values.
+    index (int) -- the index at which the insertion occurs.
+    key=val -- key is a string representing the setting to be changed. val is the value assoicated 
+      with the setting. See docstring of the constructor for more detail on valid keys and values.
 
     Returns:
     self
@@ -262,9 +270,9 @@ class Builder(object):
       for key, values in kwargs.iteritems():
         if key in validKeys:
           if (type(values) == list or type(values) == tuple):
-            self.setting[key][index:index] = values
+            self.settings[key][index:index] = values
           else:
-            self.setting[key].insert(index, values)
+            self.settings[key].insert(index, values)
         else:
           raise ValueError("(%s) Unknown setting: %s" % (fn, key))
     return self
@@ -275,7 +283,7 @@ class Builder(object):
     user-defined ones that are added to the list of valid functions using pymind.activationfn.add.
 
     Argument:
-    activationfn (str) - representing the activation function the default will be changed to.
+    activationfn (str) -- representing the activation function the default will be changed to.
 
     Returns:
     self
@@ -288,36 +296,25 @@ class Builder(object):
     self.defaultaf = activationfn
     return self
 
-  def setDefaultErrorFn(self, errfn):
-    """ Change the default error function used for trainning the neural network. Must be a valid error
-    function name, either represeenting built-in functions or user-defined ones that are added to the 
-    list of valid functions using pymind.errfn.add.
-    Argument:
-    errfn (str) - representing the error function the default will be changed to.
+  def getDefaultActivationFn(self):
+    """ Returns the default activation function.
 
     Returns:
-    self
-
-    Raises:
-    TypeError
+    The default activation function
     """
-    fn = "Builder.setDefaultErrorFn"
-    _assertFn(fn, "errfn", errfn, False)
-    DEFAULT["errfn"] = errfn
-    return self
-
+    return self.defaultaf
 
   def remove(self, key, index=None):
     """ Remove a value of the setting, specified by key, at the given index. If no index is 
-    specified, remove teh last value of the setting specified by key. Use Builder.clear to remove 
+    specified, remove the last value of the setting specified by key. Use Builder.clear to remove 
     every value of a setting.
 
     Arguments:
-    key (str) - representing the setting to be changed.
-    index (int) - the index at which the value is removed.
+    key (str) -- representing the setting to be changed.
+    index (int) -- the index at which the value is removed.
 
     Returns:
-    the value removed
+    The value removed
 
     Raises:
     IndexError
@@ -325,9 +322,9 @@ class Builder(object):
     fn = "Builder.remove"
     _assertValidKey(fn, key)
     if index == None:
-      removed = self.setting[key].pop()
+      removed = self.settings[key].pop()
     else:
-      removed = self.setting[key].pop(index)
+      removed = self.settings[key].pop(index)
     return removed 
 
   def clear(self, *args):
@@ -336,7 +333,7 @@ class Builder(object):
     be reset to the defautl.
 
     Arguments:
-    key (str) - representing the setting to be cleared.
+    key (str) -- representing the setting to be cleared.
 
     Returns:
     self
@@ -345,17 +342,17 @@ class Builder(object):
     if len(args) == 0:
       for key in validKeys:
         if key in DEFAULT:
-          self.setting[key] = [ DEFAULT[key] ]
-      self.setting["activationfn"] = []
-      self.setting["X"] = []
-      self.setting['y'] = []
+          self.settings[key] = [ DEFAULT[key] ]
+      self.settings["activationfn"] = []
+      self.settings["X"] = []
+      self.settings['y'] = []
     else:
       for key in args:
         _assertValidKey(fn, key)
         if key in DEFAULT:
-          self.setting[key] = [ DEFAULT[key] ]
+          self.settings[key] = [ DEFAULT[key] ]
         else:
-          self.setting[key] = []
+          self.settings[key] = []
     return self
 
   def build(self):
@@ -369,8 +366,14 @@ class Builder(object):
     never give the setting a value or the value of the is removed (ie. Builder.get returns empty 
     list for the setting). In both cases the default will be used. An exception being the activation 
     functions, which if left unset, its value will be infered from the layer units (using identity 
-    function for input layer, and default activation function for other layers). Note that the 
-    number of activation functions and number of layers must match, else an error will be thrown.
+    function for input layer, and default activation function for other layers). 
+
+    Note that following must match, else an error will be thrown: 
+      number of activation functions and the number of layers
+      number of input data in one trainning example (size of a column in X) and the number of input 
+        layer units (first entry in the list of int)
+      number of output data in one trainning example (size of a column in y) and the number of 
+        output layer units (last entry in the list of int)
 
     Returns:
     An iterator that produces a list of neural network suites in the proper order.
@@ -391,16 +394,16 @@ class Builder(object):
     """
     fn = "Builder.build"
     numSuites = 1
-    for key, values in self.setting.items():
+    for key, values in self.settings.items():
       if len(values) > numSuites:
         numSuites = len(values)
-    _assertValidSetting(fn, self.setting, numSuites)
+    _assertValidSetting(fn, self.settings, numSuites)
 
-    return self._suiteIterator(self.setting, self.defaultaf, numSuites)
+    return self._suiteIterator(self.settings, self.defaultaf, numSuites)
 
   class _suiteIterator(object):
     def __init__(self, setting, defaultaf, numSuites):
-      self.setting = dict(setting)
+      self.settings = dict(setting)
       self.numSuites = numSuites
       self.defaultaf = defaultaf
       self.current = 0
@@ -411,14 +414,14 @@ class Builder(object):
     def next(self):
       if self.current < self.numSuites:
         suite = {}
-        for key, values in self.setting.items():
+        for key, values in self.settings.items():
           if len(values) > 1:
             suite[key] = values[self.current]
           elif len(values) == 1:
             suite[key] = values[0]
           elif key is not "activationfn":
             suite[key] = DEFAULT[key]
-        if len(self.setting["activationfn"]) == 0:
+        if len(self.settings["activationfn"]) == 0:
           numLayer = len(suite["layer_units"])
           suite["activationfn"] = ["identity"] + [self.defaultaf] * (numLayer - 1)
         self.current += 1
@@ -441,10 +444,7 @@ def _assertValidSetting(fn, setting, numSuites):
       raise ValueError(errMsg)
   layer_units = setting["layer_units"]
   activationfn = setting["activationfn"]
-  if len(activationfn) > 1 and len(activationfn) != len(layer_units):
-    errMsg = "(%s) Two or more settings have more than one value, and the number of " % fn \
-    + "values didn't match."
-    raise ValueError(errMsg)
+  # Check if the number of activation functions match the number of layers.
   if len(activationfn) == 1:
     for i, v in enumerate(layer_units):
       numLayer = len(v)
@@ -454,13 +454,52 @@ def _assertValidSetting(fn, setting, numSuites):
         raise ValueError(errMsg)
   elif len(activationfn) > 1:
     for i in xrange(len(activationfn)):
-      numLayer = len(layer_units[i])
+      if len(layer_units) > 1:
+        numLayer = len(layer_units[i])
+      else:
+        numLayer = len(layer_units)
       numActivationFn = len(activationfn[i])
       if numActivationFn != numLayer:
         errMsg = "(%s) In suite #%d, the number of activation functions " % (fn, i) \
         + " (%d) didn't match the number of layers (%d)." % (numActivationFn, numLayer)
         raise ValueError(errMsg)
-
+  # Check if the number of input/output matches the number of input/output layer units.
+  X = setting["X"]
+  y = setting['y']
+  if len(X) == 1:
+    for i, v in enumerate(layer_units):
+      if len(X[0]) != v[0]:
+        errMsg = "(%s) In suite #%d, the number of input data points " % (fn, i) \
+        + " (%d) didn't match the number of input layers units (%d)." % (len(X[0]), v[0])
+        raise ValueError(errMsg)
+  else:
+    for i in xrange(len(X)):
+      numInput = len(X[i])
+      if len(layer_units) > 1:
+        input_layer = layer_units[i][0]
+      else:
+        input_layer = layer_units[0][0]
+      if numInput != input_layer:
+        errMsg = "(%s) In suite #%d, the number of input data points " % (fn, i) \
+        + " (%d) didn't match the number of input layers units (%d)." % (numInput, input_layer)
+        raise ValueError(errMsg)
+  if len(y) == 1:
+    for i, v in enumerate(layer_units):
+      if len(y[0]) != v[-1]:
+        errMsg = "(%s) In suite #%d, the number of output data points " % (fn, i) \
+        + " (%d) didn't match the number of output layers units (%d)." % (len(y[0]), v[-1])
+        raise ValueError(errMsg)
+  else:
+    for i in xrange(len(y)):
+      numOutput = len(y[i])
+      if len(layer_units) > 1:
+        output_layer = layer_units[i][-1]
+      else:
+        output_layer = layer_units[0][-1]
+      if numOutput != output_layer:
+        errMsg = "(%s) In suite #%d, the number of output data points " % (fn, i) \
+        + " (%d) didn't match the number of output layers units (%d)." % (numOutput, output_layer)
+        raise ValueError(errMsg)
 
 def _assertPositiveInt(fn, name, var, layer_units=True):
   """ Helper method for checking if the user input a valid positive integer."""
@@ -494,7 +533,12 @@ def _assertLearnRate(fn, name, var):
 def _assertFn(fn, name, var, activationfn=True):
   """ Helper method for checking if the user input is a valid activation or error function name."""
   assertType(fn, name, var, str)
-  if (not af.contains(var)) and (not ef.contains(var)):
+  error = False
+  if activationfn and not af.contains(var):
+    error = True
+  elif not activationfn and not ef.contains(var):
+    error = True
+  if error:
     if activationfn:
       errMsg = "%s is not a valid activation function name." % var
     else:
@@ -649,7 +693,7 @@ def _checkMinimizer(fn, values):
     newValues = values
   else:
     if values == None or values == []:
-      raise TypeError("(%s) Expected %s to be a function." % (fn, name))
+      raise TypeError("(%s) Expected minimizer to be a function." % fn)
     newValues.append(values)
   return newValues
 
