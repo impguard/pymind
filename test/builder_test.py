@@ -266,6 +266,21 @@ def testSetterErrors():
     assert False, "Passing in 'a' for layer unit should raise a TypeError."
   except TypeError:
     pass
+  try:
+    b.set(layer_units=[1])
+    assert False, "Passing in a list with only one value for layer unit should raise a ValueError."
+  except ValueError:
+    pass
+  try:
+    b.set(layer_units=[[1,1,0],[10]])
+    assert False, "Passing in list a with only one value for layer unit should raise a ValueError."
+  except ValueError:
+    pass
+  try:
+    b.set(layer_units=[[10], [3,5,1]])
+    assert False, "Passing in list a with only one value for layer unit should raise a ValueError."
+  except ValueError:
+    pass
   b.set(layer_units=[2.5, np.array([1])[0]])
   try:
     b.set(activationfn=["identity", 3, "sigmoid"])

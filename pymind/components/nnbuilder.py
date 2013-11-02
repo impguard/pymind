@@ -568,6 +568,10 @@ def _checkLayerUnits(fn, values):
         for unit in value:
           _assertPositiveInt(fn, "layer_units", unit)
           temp.append(int(unit))
+        if len(temp) < 2:
+          errMsg = "(%s) The value of layer_units must specify input and output layer units " % fn \
+          + "(contains at least 2 integers)."
+          raise ValueError(errMsg)
         newValues.append(temp)
     # One value for layer units, ie. list of int
     else:
@@ -575,6 +579,10 @@ def _checkLayerUnits(fn, values):
       for unit in values:
         _assertPositiveInt(fn, "layer_units", unit)
         temp.append(int(unit))
+      if len(temp) < 2:
+        errMsg = "(%s) The value of layer_units must specify input and output layer units " % fn \
+        + "(contains at least 2 integers)."
+        raise ValueError(errMsg)
       newValues.append(temp)
   else:
     raise TypeError("(%s) Expected layer_units to be a list of int or a list of list of int." % fn)
