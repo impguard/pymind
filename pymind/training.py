@@ -165,12 +165,13 @@ def train_suites(suites,metric,combiner=ListCombiner):
   total = None
   for suite in suites:
     params = suite['params']
+    
     X = suite['X']
     y = suite['y']
-    learn_rate = suite['learnrate']
+    learn_rate = float(suite['learn_rate'])
     errfn = suite['errfn']
     minimizer = suite['minimizer']
-    it = suite['iterations']
+    it = int(suite['iterations'])
     nnet = NeuralNetwork(params)
     train(nnet, X, y, learn_rate, errfn, minimizer, iterations = it)
     res = metric.extract(nnet)
