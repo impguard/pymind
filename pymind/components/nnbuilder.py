@@ -621,10 +621,10 @@ def _checkBias(fn, values):
   if hasattr(values, "__len__") and len(values) > 0:
     for value in values:
       assertType(fn, "bias", value, bool)
-      newValues.append(value)
+      newValues.append(float(value))
   else:
     assertType(fn, "bias", values, bool)
-    newValues.append(values)
+    newValues.append(float(values))
   return newValues
 
 checkValues["bias"] = _checkBias
