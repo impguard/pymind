@@ -621,10 +621,10 @@ def _checkBias(fn, values):
   if hasattr(values, "__len__") and len(values) > 0:
     for value in values:
       assertType(fn, "bias", value, bool)
-      newValues.append(float(value))
+      newValues.append(value)
   else:
     assertType(fn, "bias", values, bool)
-    newValues.append(float(values))
+    newValues.append(values)
   return newValues
 
 checkValues["bias"] = _checkBias
@@ -649,10 +649,10 @@ def _checkLearnRate(fn, values):
   if hasattr(values, "__len__") and len(values) > 0:
     for value in values:
       _assertLearnRate(fn, "learn_rate", value)
-      newValues.append(value)
+      newValues.append(float(value))
   else:
     _assertLearnRate(fn, "learn_rate", values)
-    newValues.append(values)
+    newValues.append(float(values))
   return newValues
 
 checkValues["learn_rate"] = _checkLearnRate
