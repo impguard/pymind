@@ -199,7 +199,7 @@ def train_suites(suites,metric,combiner=get_combiner("list_combiner")):
       'bias': bias
     }
     nnet = NeuralNetwork(params)
-    train(nnet, X, y, learn_rate, errfn, minimizer, iterations=it)
-    res = metric(nnet)
-    final_result = combiner(final_result, res)
+    res = train(nnet, X, y, learn_rate, errfn, minimizer, iterations=it)
+    iter_result = metric(nnet,res)
+    final_result = combiner(final_result, iter_result)
   return final_result
