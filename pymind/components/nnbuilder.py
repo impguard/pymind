@@ -663,10 +663,10 @@ def _checkIterations(fn, values):
   if hasattr(values, "__len__") and len(values) > 0:
     for value in values:
       _assertPositiveInt(fn, "iterations", value, False)
-      newValues.append(value)
+      newValues.append(int(value))
   else:
     _assertPositiveInt(fn, "iterations", values, False)
-    newValues.append(values)
+    newValues.append(int(values))
   return newValues
 
 checkValues["iterations"] = _checkIterations
