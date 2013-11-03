@@ -5,17 +5,24 @@ from pymind.errfn import squaredError, logitError
 def testGetPlugin1():
   """ Test that activationfn can properly get functions. """
   assert ef.get("squaredError") is squaredError, \
-    "squaredError should be automatically added to activationfn."
+    "squaredError should be automatically added to errfn."
   assert ef.get("logitError") is logitError, \
-    "logitError should be automatically added to activationfn."
+    "logitError should be automatically added to errfn."
+  assert ef.contains("squaredError"), "errfn.contains('squaredError') should return True."
+  assert ef.contains("logitError"), "errfn.contains('logitError') should return True."
 
 def testAddPlugin1():
   """ Test that activationfn can properly add functions. """
   ef.add("random", 1)
   ef.add("another", 2)
 
-  assert ef.get("random") is 1, "A function called random should be stored in activationfn."
-  assert ef.get("another") is 2, "A function called another should be stored in activationfn."
+  assert ef.get("random") is 1, "A function called random should be stored in errfn."
+  assert ef.get("another") is 2, "A function called another should be stored in errfn."
+  assert ef.contains("random"), "errfn.contains('random') should return True."
+  assert ef.contains("another"), "errfn.contains('another') should return True."
+  fnNames = ["another", "logitError", "random", "squaredError"]
+  assert ef.getFnNames().sort() == fnNames.sort(), \
+  "The following function names %r should be stored in errfn" % fnNames
 
 def testSquaredErrorCalc1():
   """ Testing squaredError.calc to 10 sig. digits. """
