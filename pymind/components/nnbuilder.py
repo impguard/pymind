@@ -23,48 +23,48 @@ validKeys = ["layer_units", "activationfn", "bias", "errfn", "learn_rate", "iter
 checkValues = {}
 
 class Builder(object):
-  """ Create a builder that can generate an iteratior of neural network suites.
+  """ Create a builder that can generate an iterator of neural network suites.
 
     A neural network suite consists of:
       
       * Neural Network Settings
         - Layer Units ("layer_units": list of int): a list of positive integers denoting number of 
-            units for each layer. The first and last integers represent the input and output layer 
-            respectively, with the rest being the hidden layers.
-            The default value is [1, 1], denoting one input and one output layer unit respectively.
+          units for each layer. The first and last integers represent the input and output layer 
+          respectively, with the rest being the hidden layers.
+          The default value is [1, 1], denoting one input and one output layer unit respectively.
         - Bias ("bias": bool): a boolean denoting whether the neural network is biased or not.
-            The default value is True.
+          The default value is True.
         - Activation Functions ("activationfn": list of str): a list of string denoting the valid 
-            names of the activation functions for each layers. 
-            See pymind.activationfn for more detail. 
-            There is no default value, if no value is input for this setting, the activation 
-            functions will be inferred from the number of layers, with identity function for the 
-            input layer, and the default activation function for the other layers. The default 
-            activation function can be accessed via Builder.getDefaultActivationFn and changed via 
-            Builder.setDefaultActivationFn
+          names of the activation functions for each layers. 
+          See pymind.activationfn for more detail. 
+          There is no default value, if no value is input for this setting, the activation 
+          functions will be inferred from the number of layers, with identity function for the 
+          input layer, and the default activation function for the other layers. The default 
+          activation function can be accessed via Builder.getDefaultActivationFn and changed via 
+          Builder.setDefaultActivationFn
       
       * Training Information
         - Input Training Data ("X": numpy.ndarray OR numpy.matrix): a vector with each column 
-            representing a feature vector for one training example. The size of each column should 
-            match the number of input layer units.
-            There is no default value for this setting. This setting must have at least one value 
-            before neural network suite(s) can be generated.
+          representing a feature vector for one training example. The size of each column should 
+          match the number of input layer units.
+          There is no default value for this setting. This setting must have at least one value 
+          before neural network suite(s) can be generated.
         - Output Expected Data ("y": numpy.ndarray OR numpy.matrix): a vector with each column
-            representing the output vector for one training example. The size of each column should 
-            match the number of output layer units.
-            There is no default value for this setting. This setting must have at least one value 
-            before neural network suite(s) can be generated.
+          representing the output vector for one training example. The size of each column should 
+          match the number of output layer units.
+          There is no default value for this setting. This setting must have at least one value 
+          before neural network suite(s) can be generated.
         - Learning Rate ("learn_rate": float): a number in [0,1] denoting the learning rate for 
-            regularization.
-            The default is 0.7
+          regularization.
+          The default is 0.7
         - Error Function ("errfn": str): a str denoting the name of the error function used when 
-            computing cost. See pymind.errfn for more detail. 
-            The default value is "squaredError", representing the squared error function.
+          computing cost. See pymind.errfn for more detail. 
+          The default value is "squaredError", representing the squared error function.
         - Minimizing Function ("minimizer": function): a minimization function. 
-            See pymind.mathutil.create_minimizer for more detail.
+          See pymind.mathutil.create_minimizer for more detail.
         - Training Iterations ("iterations": int): a positive integer denoting number of times to 
-            attempt to minimize the cost with different starting weights.
-            The default value is 10.
+          attempt to minimize the cost with different starting weights.
+          The default value is 10.
   """
   def __init__(self, setting=None):
     """ Create a builder using the default settings or via user settings by passing in a dictionary
@@ -188,7 +188,7 @@ class Builder(object):
 
   def set(self, **kwargs):
     """ Set the value(s) of the specified setting(s). For example, set(bias=False,iterations=[10,5])
-    will set the bias to be False while the number of trainning iterations to be 10 in the first 
+    will set the bias to be False while the number of training iterations to be 10 in the first 
     suite and 5 in the second suite.
 
     Arguments:
@@ -362,17 +362,17 @@ class Builder(object):
     multiple values are provided for one setting, any other settings with multiple values should 
     have exactly two values. That is, the number of values provided should matched.
 
-    All settings except input (X) and output (y) trainning data can be left unset. Either the user 
+    All settings except input (X) and output (y) training data can be left unset. Either the user 
     never give the setting a value or the value of the is removed (ie. Builder.get returns empty 
     list for the setting). In both cases the default will be used. An exception being the activation 
-    functions, which if left unset, its value will be infered from the layer units (using identity 
+    functions, which if left unset, its value will be inferred from the layer units (using identity 
     function for input layer, and default activation function for other layers). 
 
     Note that following must match, else an error will be thrown: 
       number of activation functions and the number of layers
-      number of input data in one trainning example (size of a column in X) and the number of input 
+      number of input data in one training example (size of a column in X) and the number of input 
         layer units (first entry in the list of int)
-      number of output data in one trainning example (size of a column in y) and the number of 
+      number of output data in one training example (size of a column in y) and the number of 
         output layer units (last entry in the list of int)
 
     Returns:
@@ -390,7 +390,7 @@ class Builder(object):
 
     Raises:
     ValueError - if the settings cannot be used to construct valid neural networks or to conduct 
-    trainning on neural networks.
+    training on neural networks.
     """
     fn = "Builder.build"
     numSuites = 1
@@ -437,7 +437,7 @@ def _assertValidSetting(fn, setting, numSuites):
     setting["layer_units"] = [ DEFAULT["layer_units"] ]
   for key, values in setting.items():
     if len(values) == 0 and key in ["X", "y"]:
-      raise ValueError("(%s) Both the input and output trainning data must be set." % fn)
+      raise ValueError("(%s) Both the input and output training data must be set." % fn)
     elif len(values) > 1 and len(values) < numSuites:
       errMsg = "(%s) Two or more settings have more than one value, and the number of " % fn \
       + "values didn't match."
@@ -548,7 +548,7 @@ def _assertFn(fn, name, var, activationfn=True):
 def _assertTrainningData(fn, name, var, input=True):
   """ Helper method for checking if the user input is valid input/output data."""
   if (type(var) is not np.ndarray) and (type(var) is not np.matrix):
-    dataType = "input trainning data" if input else "expected output data"
+    dataType = "input training data" if input else "expected output data"
     raise TypeError("(%s) Expected %s (%s) to be numpy array or matrix." % (fn, name, dataType))
 
 def _assertValidKey(fn, key):
@@ -672,7 +672,7 @@ def _checkIterations(fn, values):
 checkValues["iterations"] = _checkIterations
 
 def _checkData(fn, values, input):
-  """ Helper method for checking if input/output trainning data is valid."""
+  """ Helper method for checking if input/output training data is valid."""
   newValues = []
   if (type(values) == list or type(values) == tuple) and len(values) > 0:
     for value in values:
