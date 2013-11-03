@@ -1,62 +1,73 @@
 """ Package of common metric functions, as well as combiner functions.
 
-An metric function is a static object that takes a neural network and extracts
-information (i.e. metrics) from the neural network using the function 'extract',
-returning the information as any datatype.
+An metric is a function that takes a neural network and extracts information (i.e. metrics) from the
+neural network, returning the information as any datatype.
 
-A combiner function is a static object that takes a running result of calling
-metric functions and the result of the latest call to a metric function, and
-combines them, returning the resulting object.
+A combiner function is a function that takes a running result of calling metric functions and the
+result of the latest call to a metric function, and combines them, returning the resulting object.
 """
 
 import numpy as np
 from util import assertType
 
-metric_list = dict()
+_metrics = dict()
 def get_metric(name):
+  """ Gets the metric function corresponding to this name. If the name corresponds to no function,
+  raises an exception.
+
+  Arguments:
+  name -- a string representing the name of this metric
+  Returns:
+  a metric mapped from the given name
+  """
   assertType("metricfn.get_metric", "name", name, str)
-  assert name in metric_list, "(metricfn) %s cannot be found." % name
-  return metric_list[name]
+  assert name in _metrics, "(metricfn) %s cannot be found." % name
+  return _metrics[name]
 
-def add_metric(name, fn):
-  assertType("metricfn.add_metric", "name", name, str)
-  metric_list[name] = fn
+def set_metric(name, fn):
+  """ Sets the metric function corresponding using this name.If the name already maps to a function,
+  overwrites the function.
 
-class _metricfn(object):
-  @classmethod
-  def extract(cls, nnet):
-    return cls._extract(nnet)
+  Arguments:
+  name -- a string representing the name of this metric
+  fn -- a function that takes a NeuralNetwork and returns some value derived from the NeuralNetwork
+  """
+  assertType("metricfn.set_metric", "name", name, str)
+  _metrics[name] = fn
 
-  @classmethod
-  def _extract(cls, nnet):
-    raise Exception("_extract not implemented")
-
-combiner_list = dict()
+_combiners = dict()
 def get_combiner(name):
+  """ Gets the combiner function corresponding to this name. If the name corresponds to no function,
+  raises an exception.
+
+  Arguments:
+  name -- a string representing the name of this combiner
+  Returns:
+  a combiner mapped from the given name
+  """
   assertType("metricfn.get_combiner", "name", name, str)
-  assert name in metric_list, "(metricfn) %s cannot be found." % name
-  return combiner_list[name]
+  assert name in _combiners, "(metricfn) %s cannot be found." % name
+  return _combiners[name]
 
-def add_combiner(name, fn):
-  assertType("metricfn.add_combiner", "name", name, str)
-  combiner_list[name] = fn
+def set_combiner(name, fn):
+  """ Sets the combiner function corresponding using this name. If the name already maps to a
+  function, overwrites the function.
 
-class _combinerfn(object):
-  @classmethod
-  def reduce(cls, total, res):
-    return cls._reduce
+  Arguments:
+  name -- a string representing the name of this combiner
+  fn -- a function that takes a total and a result and returns the combination of the two
+  """
+  assertType("metricfn.set_combiner", "name", name, str)
+  _combiners[name] = fn
 
-  @classmethod
-  def _reduce(cls, total, res):
-    raise Exception("_reduce not implemented")
+def __list_combiner(total, res):
+  """ Returns total concatenated with res. If total is None, returns res as a single element list.
+  This is the default combiner function.
+  """
+  if total is None:
+    return [res,]
+  else:
+    # using list.append would mutate total. Is this what we want? 
+    return total + [res,]
 
-class ListCombiner(_combinerfn):
-  @classmethod
-  def _reduce(cls, total, res):
-    if total is None:
-      return [res,]
-    else:
-      # list.append would mutate total. Is this what we want? 
-      return total + [res,]
-
-add_combiner("list_combiner",ListCombiner)
+set_combiner("list_combiner",__list_combiner)
