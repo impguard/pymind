@@ -25,8 +25,8 @@ def get_metric(name):
   return _metrics[name]
 
 def set_metric(name, fn):
-  """ Sets the metric function corresponding using this name.If the name already maps to a function,
-  overwrites the function.
+  """ Sets the metric function corresponding using this name. Overwrites the function if the name
+  already maps to a function.
 
   Arguments:
   name -- a string representing the name of this metric

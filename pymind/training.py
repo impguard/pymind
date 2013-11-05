@@ -186,10 +186,10 @@ def train_suites(suites,metric,combiner=get_combiner("list_combiner")):
     hiddencount = layer_units[1:-1]
     incount = layer_units[0]
     outcount = layer_units[-1]
-    learn_rate = float(suite['learn_rate'])
+    learn_rate = suite['learn_rate']
     errfn = pymind.errfn.get(suite['errfn'])
     minimizer = suite['minimizer']
-    it = int(suite['iterations'])
+    it = suite['iterations']
     bias = suite['bias']
     params = {
       'input_units': incount,
