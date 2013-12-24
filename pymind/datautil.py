@@ -160,7 +160,6 @@ def __load_mat_data(fname):
   return {'X':X, 'y':y}
 load_routines['mat'] = __load_mat_data
 
-
 def split_data(X, y=None, parts=2):
   """ Randomly partitions a set of training data into multiple parts
 
@@ -195,3 +194,72 @@ def split_data(X, y=None, parts=2):
       start = end
       end += inc
     return dsets
+
+def __matrixToList(mtx):
+  """ Converts a numpy matrix into a 2D Python list. """
+  arr = []
+  for row in mtx:
+    arr.append([t[1] for t in np.ndenumerate(row)])
+  return arr
+
+def save_neural_net(fname, nnet, format=None):
+  """ Given a file name, neural network and a format serializes a neural network into the specified
+  format. File contains the following information: the size of each hidden layer, number of input
+  units, number of output units, each layer's activation function, whether or not the network is
+  biased, and the weight of each link in the network.
+
+  Parameters:
+    fname, the name of the file (may include an extension)
+    nnet, the neural network to serialize
+    format, the file format to use
+  """
+  pass
+
+def __save_json_neural_net(fname, nnet):
+  """ Given a file name and neural network, serializes the neural network as a json file. See doc
+  for save_neural_net for more information.
+
+  Parameters:
+    fname, the name of the file
+    nnet, the neural network to serialize
+  """
+  pass
+
+def __save_mat_neural_net(fname, nnet):
+  """ Given a file name and neural network, serializes the neural network as a mat file. See doc
+  for save_neural_net for more information.
+
+  Parameters:
+    fname, the name of the file
+    nnet, the neural network to serialize
+  """
+  pass
+
+def load_neural_net(fname, format=None):
+    """ Given a file name 'fname' and a string 'format' indicating the file format, attempts to load
+  and return the neural network contained within the file. If no format is specified, attempts to
+  search the file name for an extension.
+
+  Parameters:
+    fname, the name of a file containing a training dataset
+    format, the format of the input file
+  """
+  pass
+
+def __load_json_neural_net(fname):
+  """ Given a file name, deserializes the neural network as a json file. See doc for load_neural_net
+  for more information.
+
+  Parameters:
+    fname, the name of the file
+  """
+  pass
+
+def __load_mat_neural_net(fname):
+  """ Given a file name, deserializes the neural network as a mat file. See doc for load_neural_net
+  for more information.
+
+  Parameters:
+    fname, the name of the file
+  """
+  pass
