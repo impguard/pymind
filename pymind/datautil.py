@@ -236,7 +236,7 @@ def __save_mat_neural_net(fname, nnet):
   pass
 
 def load_neural_net(fname, format=None):
-    """ Given a file name 'fname' and a string 'format' indicating the file format, attempts to load
+  """ Given a file name 'fname' and a string 'format' indicating the file format, attempts to load
   and return the neural network contained within the file. If no format is specified, attempts to
   search the file name for an extension.
 
