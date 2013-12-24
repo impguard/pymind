@@ -279,7 +279,7 @@ def __load_json_neural_net(fname):
   """ Given a file name, deserializes the neural network as a json file. See doc for load_neural_net
   for more information.
 
-  Parameters:
+  Pameters:
     fname, the name of the file
   """
   if ".json" not in fname[-5:]:
@@ -299,8 +299,6 @@ def __load_json_neural_net(fname):
   except AssertionError:
     raise RuntimeError("Error: Loading custom activation functions is not yet supported.")
   nnet = NeuralNetwork(params)
-  if nnet is None:
-    print "WAT"
   nnet.weights = [np.matrix(t) for t in obj["weights"]]
   return nnet
 
