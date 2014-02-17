@@ -363,7 +363,7 @@ class Builder(object):
     have exactly two values. That is, the number of values provided should matched.
 
     All settings except input (X) and output (y) training data can be left unset. Either the user 
-    never give the setting a value or the value of the is removed (ie. Builder.get returns empty 
+    never give the setting a value or the value is removed (ie. Builder.get returns empty 
     list for the setting). In both cases the default will be used. An exception being the activation 
     functions, which if left unset, its value will be inferred from the layer units (using identity 
     function for input layer, and default activation function for other layers). 
