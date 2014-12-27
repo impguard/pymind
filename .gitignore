@@ -29,3 +29,4 @@ venv/*
 # Miscellaneous Scripts #
 #########################
 activate.bat
+tmpscript.py

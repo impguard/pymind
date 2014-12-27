@@ -1,7 +1,11 @@
 """ Several methods that train a neural network given a training dataset. """
 
 import numpy as np
+import pymind
 from collections import deque
+from pymind.errfn import squaredError
+from pymind.metricfn import *
+from pymind.components import NeuralNetwork
 from util import unroll_matrices, reshape_vector
 
 def train(nnet, X, y, learn_rate, errfn, minimizer, iterations = 10):
@@ -154,3 +158,48 @@ def create_costfn(nnet, X, y, learn_rate, errfn, computeGrad=True):
       print "Calculating cost of a neural network failed. Most likely due to dimension mismatch."
       raise
   return costfn
+
+def train_suites(suites,metric,combiner=get_combiner("list_combiner")):
+  """ Given a list of suites that can be used to construct and train neural networks, trains each
+  neural network and runs callback 'metric' on the resulting neural network, combining the metrics
+  returned by each callback using the reduce function 'combiner'.
+
+  Arguments:
+  suites -- an iterator of suites (dictionaries containing information necessary to construct and
+    train neural networks. See nnbuilder.py for more information)
+  metric -- a metric function wrapper used to extract metrics from trained neural networks. See
+    metricfn.py for more information
+  combiner -- a combiner function wrapper used to combine results from multiple calls to metric
+    functions. See metricfn.py for more information. The default combiner (ListCombiner) concat-
+    enates all results of calling the metric function in one resulting list.
+
+  Returns:
+  The final result of combining calls to the metric function using the combiner function. By def-
+  ault, this is a list.
+  """
+  final_result = None
+  for suite in suites:
+    X = suite['X']
+    y = suite['y']
+    actfns = [pymind.activationfn.get(s) for s in suite['activationfn']]
+    layer_units = suite['layer_units']
+    hiddencount = layer_units[1:-1]
+    incount = layer_units[0]
+    outcount = layer_units[-1]
+    learn_rate = suite['learn_rate']
+    errfn = pymind.errfn.get(suite['errfn'])
+    minimizer = suite['minimizer']
+    it = suite['iterations']
+    bias = suite['bias']
+    params = {
+      'input_units': incount,
+      'output_units': outcount,
+      'hidden_units': hiddencount,
+      'activationfn': actfns,
+      'bias': bias
+    }
+    nnet = NeuralNetwork(params)
+    res = train(nnet, X, y, learn_rate, errfn, minimizer, iterations=it)
+    iter_result = metric(nnet,res)
+    final_result = combiner(final_result, iter_result)
+  return final_result

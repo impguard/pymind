@@ -4,3 +4,4 @@ from training import *
 import activationfn
 import errfn
 import util
+import datautil
